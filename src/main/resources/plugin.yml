@@ -1,0 +1,47 @@
+name: casus-professions
+author: alyphen
+version: @version@
+main: com.worldofcasus.professions.CasusProfessions
+api-version: 1.15
+depend:
+- rpk-core-bukkit
+- rpk-player-lib-bukkit
+- rpk-character-lib-bukkit
+- rpk-selection-lib-bukkit
+commands:
+  node:
+    description: |
+      Node management command
+      /node additem [node] - Adds the item held in your main hand to the node's drop table
+      /node create [name] - Creates a node with the given name, based on your selection
+      /node delete [node] - Deletes a node with the given ID or name
+      /node list - Lists nodes
+      /node removeitem [node] (node item id) - Removes the item held in your main hand, or the specified item, from the node's drop table
+      /node view [node] - Views the node
+      /node reload - Reloads the node harvesting config
+    usage: /<command> [additem|create|delete|list|removeitem|view|reload]
+  profession:
+    description: |
+      Profession management command
+      /profession create [name] - Creates the profession with the given name
+      /profession set [profession] - Sets your profession (irreversible!)
+      /profession list - Lists available professions
+permissions:
+  professions.command.node.create:
+    description: Allows creating nodes
+    default: op
+  professions.command.node.delete:
+    description: Allows deleting nodes
+    default: op
+  professions.command.node.additem:
+    description: Allows adding items to nodes
+    default: op
+  professions.command.node.removeitem:
+    description: Allows removing items from nodes
+    default: op
+  professions.command.node.reload:
+    description: Reloads the node config
+    default: op
+  professions.command.profession.create:
+    description: Allows creating professions
+    default: op
