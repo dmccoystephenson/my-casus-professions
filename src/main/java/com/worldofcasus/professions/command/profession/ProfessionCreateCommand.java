@@ -1,9 +1,9 @@
 package com.worldofcasus.professions.command.profession;
 
+import com.rpkit.core.exception.UnregisteredServiceException;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.profession.Profession;
 import com.worldofcasus.professions.profession.ProfessionService;
-import com.rpkit.core.service.Services;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -26,7 +26,7 @@ public final class ProfessionCreateCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission("professions.command.profession.create")) {
+        if (!sender.hasPermission("worldofcasus.professions.command.profession.create")) {
             sender.sendMessage(NO_PERMISSION);
             return true;
         }
@@ -35,8 +35,10 @@ public final class ProfessionCreateCommand implements CommandExecutor {
             return true;
         }
         String professionName = args[0];
-        ProfessionService professionService = Services.INSTANCE.get(ProfessionService.class);
-        if (professionService == null) {
+        ProfessionService professionService;
+        try {
+            professionService = plugin.core.getServiceManager().getServiceProvider(ProfessionService.class);
+        } catch (UnregisteredServiceException e) {
             sender.sendMessage(PROFESSION_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }

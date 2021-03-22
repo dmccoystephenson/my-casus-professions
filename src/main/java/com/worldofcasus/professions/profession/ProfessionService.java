@@ -1,15 +1,16 @@
 package com.worldofcasus.professions.profession;
 
+import com.rpkit.characters.bukkit.character.RPKCharacter;
+import com.rpkit.core.service.ServiceProvider;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.database.table.CharacterProfessionTable;
 import com.worldofcasus.professions.database.table.ProfessionTable;
-import com.rpkit.characters.bukkit.character.RPKCharacter;
-import com.rpkit.core.service.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
-public final class ProfessionService implements Service {
+public final class ProfessionService implements ServiceProvider {
 
     private final CasusProfessions plugin;
 
@@ -17,29 +18,28 @@ public final class ProfessionService implements Service {
         this.plugin = plugin;
     }
 
-    @Override
     public CasusProfessions getPlugin() {
         return plugin;
     }
 
-    public Optional<Profession> getProfession(String name) {
+    public CompletableFuture<Optional<Profession>> getProfession(String name) {
         return plugin.getDatabase().getTable(ProfessionTable.class).get(name);
     }
 
-    public List<Profession> getProfessions() {
+    public CompletableFuture<List<Profession>> getProfessions() {
         return plugin.getDatabase().getTable(ProfessionTable.class).getAll();
     }
 
-    public void addProfession(Profession profession) {
-        plugin.getDatabase().getTable(ProfessionTable.class).insert(profession);
+    public CompletableFuture<Optional<Profession>> addProfession(Profession profession) {
+        return plugin.getDatabase().getTable(ProfessionTable.class).insert(profession);
     }
 
-    public Optional<Profession> getProfession(RPKCharacter character) {
+    public CompletableFuture<Optional<Profession>> getProfession(RPKCharacter character) {
         return plugin.getDatabase().getTable(CharacterProfessionTable.class).get(character);
     }
 
-    public void setProfession(RPKCharacter character, Profession profession) {
-        plugin.getDatabase().getTable(CharacterProfessionTable.class).insertOrUpdate(character, profession);
+    public CompletableFuture<Void> setProfession(RPKCharacter character, Profession profession) {
+        return plugin.getDatabase().getTable(CharacterProfessionTable.class).insertOrUpdate(character, profession);
     }
 
 }

@@ -14,8 +14,6 @@ public final class NodeCommand implements CommandExecutor {
 
     private static final String USAGE_MESSAGE = RED + "Usage: /node [create|delete|view|additem|removeitem|list|reload]";
 
-    private final CasusProfessions plugin;
-
     private final NodeCreateCommand nodeCreateCommand;
     private final NodeDeleteCommand nodeDeleteCommand;
     private final NodeViewCommand nodeViewCommand;
@@ -25,7 +23,6 @@ public final class NodeCommand implements CommandExecutor {
     private final NodeReloadCommand nodeReloadCommand;
 
     public NodeCommand(CasusProfessions plugin) {
-        this.plugin = plugin;
         nodeCreateCommand = new NodeCreateCommand(plugin);
         nodeDeleteCommand = new NodeDeleteCommand(plugin);
         nodeViewCommand = new NodeViewCommand(plugin);

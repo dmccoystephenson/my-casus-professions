@@ -1,16 +1,17 @@
 package com.worldofcasus.professions.command.node;
 
+import com.rpkit.core.exception.UnregisteredServiceException;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.node.Node;
 import com.worldofcasus.professions.node.NodeId;
 import com.worldofcasus.professions.node.NodeService;
-import com.rpkit.core.service.Services;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static org.bukkit.ChatColor.GREEN;
 import static org.bukkit.ChatColor.RED;
@@ -29,7 +30,7 @@ public final class NodeDeleteCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission("professions.command.node.delete")) {
+        if (!sender.hasPermission("worldofcasus.professions.command.node.delete")) {
             sender.sendMessage(NO_PERMISSION);
             return true;
         }
@@ -38,26 +39,34 @@ public final class NodeDeleteCommand implements CommandExecutor {
             return true;
         }
         String name = args[0];
-        NodeService nodeService = Services.INSTANCE.get(NodeService.class);
-        if (nodeService == null) {
+        NodeService nodeService;
+        try {
+            nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
+        } catch (UnregisteredServiceException e) {
             sender.sendMessage(NODE_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }
-        Optional<Node> node;
+        CompletableFuture<Optional<Node>> nodeFuture;
         try {
             int nodeId = Integer.parseInt(args[0]);
-            node = nodeService.getNode(new NodeId(nodeId));
+            nodeFuture = nodeService.getNode(new NodeId(nodeId));
         } catch (NumberFormatException exception) {
             String nodeName = args[0];
-            node = nodeService.getNode(nodeName);
+            nodeFuture = nodeService.getNode(nodeName);
         }
-        if (node.isPresent()) {
-            Node value = node.get();
-            nodeService.deleteNode(value);
-            sender.sendMessage(nodeDeleted(value));
-        } else {
-            sender.sendMessage(invalidNode(name));
-        }
+        nodeFuture.thenAccept((node) ->
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    if (node.isPresent()) {
+                        Node value = node.get();
+                        nodeService.deleteNode(value).thenRun(() -> {
+                            sender.sendMessage(nodeDeleted(value));
+                        });
+                    } else {
+                        sender.sendMessage(invalidNode(name));
+                    }
+                })
+        );
+
         return true;
     }
 

@@ -1,5 +1,10 @@
 package com.worldofcasus.professions.listener;
 
+import com.rpkit.characters.bukkit.character.RPKCharacter;
+import com.rpkit.characters.bukkit.character.RPKCharacterProvider;
+import com.rpkit.core.exception.UnregisteredServiceException;
+import com.rpkit.players.bukkit.profile.RPKMinecraftProfile;
+import com.rpkit.players.bukkit.profile.RPKMinecraftProfileProvider;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.node.Node;
 import com.worldofcasus.professions.node.NodeItem;
@@ -7,11 +12,6 @@ import com.worldofcasus.professions.node.NodeService;
 import com.worldofcasus.professions.profession.Profession;
 import com.worldofcasus.professions.profession.ProfessionService;
 import com.worldofcasus.professions.stamina.StaminaService;
-import com.rpkit.characters.bukkit.character.RPKCharacter;
-import com.rpkit.characters.bukkit.character.RPKCharacterService;
-import com.rpkit.core.service.Services;
-import com.rpkit.players.bukkit.profile.minecraft.RPKMinecraftProfile;
-import com.rpkit.players.bukkit.profile.minecraft.RPKMinecraftProfileService;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -23,6 +23,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 import static org.bukkit.ChatColor.RED;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
@@ -49,12 +50,16 @@ public final class PlayerInteractListener implements Listener {
         }
         Block block = event.getClickedBlock();
         if (block == null) return;
-        ProfessionService professionService = Services.INSTANCE.get(ProfessionService.class);
-        if (professionService == null) {
+        ProfessionService professionService;
+        try {
+            professionService = plugin.core.getServiceManager().getServiceProvider(ProfessionService.class);
+        } catch (UnregisteredServiceException e) {
             return;
         }
-        RPKMinecraftProfileService minecraftProfileService = Services.INSTANCE.get(RPKMinecraftProfileService.class);
-        if (minecraftProfileService == null) {
+        RPKMinecraftProfileProvider minecraftProfileService;
+        try {
+            minecraftProfileService = plugin.core.getServiceManager().getServiceProvider(RPKMinecraftProfileProvider.class);
+        } catch (UnregisteredServiceException e) {
             return;
         }
         Player player = event.getPlayer();
@@ -62,58 +67,70 @@ public final class PlayerInteractListener implements Listener {
         if (minecraftProfile == null) {
             return;
         }
-        RPKCharacterService characterService = Services.INSTANCE.get(RPKCharacterService.class);
-        if (characterService == null) {
+        RPKCharacterProvider characterService;
+        try {
+            characterService = plugin.core.getServiceManager().getServiceProvider(RPKCharacterProvider.class);
+        } catch (UnregisteredServiceException e) {
             return;
         }
         RPKCharacter character = characterService.getActiveCharacter(minecraftProfile);
         if (character == null) {
             return;
         }
-        Optional<Profession> profession = professionService.getProfession(character);
-        if (!profession.isPresent()) {
-            return;
-        }
-        NodeService nodeService = Services.INSTANCE.get(NodeService.class);
-        if (nodeService == null) {
-            return;
-        }
-        StaminaService staminaService = Services.INSTANCE.get(StaminaService.class);
-        if (staminaService == null) {
-            return;
-        }
-        List<Node> nodes = nodeService.getNodesAt(event.getClickedBlock().getLocation());
-        if (!nodes.isEmpty()) {
-            event.setCancelled(true);
-        }
-        for (Node node : nodes) {
-            harvest(staminaService, player, character, profession.get(), node, block.getRelative(event.getBlockFace()).getLocation());
-        }
+        CompletableFuture<Optional<Profession>> professionFuture = professionService.getProfession(character);
+        professionFuture.thenAccept((profession) -> {
+            if (!profession.isPresent()) {
+                return;
+            }
+            NodeService nodeService;
+            try {
+                nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
+            } catch (UnregisteredServiceException e) {
+                return;
+            }
+            StaminaService staminaService;
+            try {
+                staminaService = plugin.core.getServiceManager().getServiceProvider(StaminaService.class);
+            } catch (UnregisteredServiceException e) {
+                return;
+            }
+            List<Node> nodes = nodeService.getNodesAt(event.getClickedBlock().getLocation());
+            if (!nodes.isEmpty()) {
+                event.setCancelled(true);
+            }
+            for (Node node : nodes) {
+                harvest(staminaService, player, character, profession.get(), node, block.getRelative(event.getBlockFace()).getLocation());
+            }
+        });
     }
 
-    private void harvest(StaminaService staminaService, Player player, RPKCharacter character, Profession profession, Node node, Location dropLocation) {
-        if (!node.getRequiredProfession().getId().equals(profession.getId())) return;
-        int stamina = staminaService.getStamina(character);
-        if (stamina <= 0) {
-            player.sendMessage(NO_STAMINA);
-            return;
-        }
-        List<NodeItem> items = node.getItems();
-        if (items.isEmpty()) return;
-        int chanceSum = items.stream().map(NodeItem::getChance).reduce(0, Integer::sum);
-        int choice = random.nextInt(chanceSum);
-        int sum = 0;
-        NodeItem chosenItem = null;
-        for (NodeItem nodeItem : items) {
-            sum += nodeItem.getChance();
-            if (sum > choice) {
-                chosenItem = nodeItem;
-                break;
+    private CompletableFuture<Void> harvest(StaminaService staminaService, Player player, RPKCharacter character, Profession profession, Node node, Location dropLocation) {
+        if (!node.getRequiredProfession().getId().equals(profession.getId())) return CompletableFuture.completedFuture(null);
+        return staminaService.getStamina(character).thenAccept((stamina) -> {
+            if (stamina <= 0) {
+                player.sendMessage(NO_STAMINA);
+                return;
             }
-        }
-        if (chosenItem == null) return;
-        player.getWorld().dropItemNaturally(dropLocation, chosenItem.getItem());
-        staminaService.setStamina(character, stamina - plugin.getConfig().getInt("stamina.harvest-cost"));
+            List<NodeItem> items = node.getItems();
+            if (items.isEmpty()) return;
+            int chanceSum = items.stream().map(NodeItem::getChance).reduce(0, Integer::sum);
+            int choice = random.nextInt(chanceSum);
+            int sum = 0;
+            NodeItem chosenItem = null;
+            for (NodeItem nodeItem : items) {
+                sum += nodeItem.getChance();
+                if (sum > choice) {
+                    chosenItem = nodeItem;
+                    break;
+                }
+            }
+            if (chosenItem == null) return;
+            final NodeItem finalChosenItem = chosenItem;
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                player.getWorld().dropItemNaturally(dropLocation, finalChosenItem.getItem());
+                staminaService.setStamina(character, stamina - plugin.getConfig().getInt("stamina.harvest-cost"));
+            });
+        });
     }
 
 }

@@ -13,7 +13,7 @@ commands:
     description: |
       Node management command
       /node additem [node] - Adds the item held in your main hand to the node's drop table
-      /node create [name] - Creates a node with the given name, based on your selection
+      /node create [name] [required profession] - Creates a node with the given name, based on your selection
       /node delete [node] - Deletes a node with the given ID or name
       /node list - Lists nodes
       /node removeitem [node] (node item id) - Removes the item held in your main hand, or the specified item, from the node's drop table

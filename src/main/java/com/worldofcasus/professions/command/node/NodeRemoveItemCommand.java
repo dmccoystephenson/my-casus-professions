@@ -1,8 +1,8 @@
 package com.worldofcasus.professions.command.node;
 
+import com.rpkit.core.exception.UnregisteredServiceException;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.node.*;
-import com.rpkit.core.service.Services;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static org.bukkit.ChatColor.GREEN;
 import static org.bukkit.ChatColor.RED;
@@ -33,7 +34,7 @@ public final class NodeRemoveItemCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission("professions.command.node.removeitem")) {
+        if (!sender.hasPermission("worldofcasus.professions.command.node.removeitem")) {
             sender.sendMessage(NO_PERMISSION);
             return true;
         }
@@ -46,43 +47,57 @@ public final class NodeRemoveItemCommand implements CommandExecutor {
             return true;
         }
         Player player = (Player) sender;
-        NodeService nodeService = Services.INSTANCE.get(NodeService.class);
-        if (nodeService == null) {
+        NodeService nodeService;
+        try {
+            nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
+        } catch (UnregisteredServiceException e) {
             sender.sendMessage(NODE_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }
-        Optional<Node> node;
+        CompletableFuture<Optional<Node>> nodeFuture;
         try {
             int nodeId = Integer.parseInt(args[0]);
-            node = nodeService.getNode(new NodeId(nodeId));
+            nodeFuture = nodeService.getNode(new NodeId(nodeId));
         } catch (NumberFormatException exception) {
             String nodeName = args[0];
-            node = nodeService.getNode(nodeName);
+            nodeFuture = nodeService.getNode(nodeName);
         }
-        if (node.isPresent()) {
-            Node value = node.get();
-            Optional<NodeItem> nodeItemToRemove;
-            if (args.length < 2) {
-                ItemStack item = player.getInventory().getItemInMainHand();
-                nodeItemToRemove = value.getItems().stream().filter(nodeItem -> nodeItem.getItem().isSimilar(item)).findFirst();
-            } else {
-                try {
-                    int nodeItemId = Integer.parseInt(args[1]);
-                    nodeItemToRemove = nodeService.getNodeItem(new NodeItemId(nodeItemId));
-                } catch (NumberFormatException exception) {
-                    sender.sendMessage(INVALID_NODE_ITEM_ID);
-                    return true;
-                }
-            }
-            if (nodeItemToRemove.isPresent()) {
-                nodeService.removeNodeItem(nodeItemToRemove.get());
-                sender.sendMessage(itemRemoved(nodeItemToRemove.get().getItem(), value));
-            } else {
-                sender.sendMessage(ITEM_NOT_PRESENT);
-            }
-        } else {
-            sender.sendMessage(NODE_INVALID);
-        }
+        nodeFuture.thenAccept((node) ->
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    if (node.isPresent()) {
+                        Node value = node.get();
+                        CompletableFuture<Optional<NodeItem>> nodeItemToRemoveFuture;
+                        if (args.length < 2) {
+                            ItemStack item = player.getInventory().getItemInMainHand();
+                            nodeItemToRemoveFuture = CompletableFuture.completedFuture(
+                                    value.getItems().stream().filter(nodeItem -> nodeItem.getItem().isSimilar(item)).findFirst()
+                            );
+                        } else {
+                            try {
+                                int nodeItemId = Integer.parseInt(args[1]);
+                                nodeItemToRemoveFuture = nodeService.getNodeItem(new NodeItemId(nodeItemId));
+                            } catch (NumberFormatException exception) {
+                                sender.sendMessage(INVALID_NODE_ITEM_ID);
+                                return;
+                            }
+                        }
+                        nodeItemToRemoveFuture.thenAccept((nodeItemToRemove) -> {
+                            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                                if (nodeItemToRemove.isPresent()) {
+                                    nodeService.removeNodeItem(nodeItemToRemove.get()).thenRun(() -> {
+                                        sender.sendMessage(itemRemoved(nodeItemToRemove.get().getItem(), value));
+                                    });
+                                } else {
+                                    sender.sendMessage(ITEM_NOT_PRESENT);
+                                }
+                            });
+                        });
+                    } else {
+                        sender.sendMessage(NODE_INVALID);
+                    }
+                })
+        );
+
         return true;
     }
 
