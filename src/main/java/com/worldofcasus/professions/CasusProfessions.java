@@ -1,5 +1,6 @@
 package com.worldofcasus.professions;
 
+import com.rpkit.core.service.ServiceProvider;
 import com.worldofcasus.professions.command.node.NodeCommand;
 import com.worldofcasus.professions.command.profession.ProfessionCommand;
 import com.worldofcasus.professions.database.Database;
@@ -9,7 +10,6 @@ import com.worldofcasus.professions.profession.ProfessionService;
 import com.worldofcasus.professions.stamina.StaminaRestoreRunnable;
 import com.worldofcasus.professions.stamina.StaminaService;
 import com.rpkit.core.bukkit.plugin.RPKBukkitPlugin;
-import com.rpkit.core.service.Services;
 
 public final class CasusProfessions extends RPKBukkitPlugin {
 
@@ -24,20 +24,27 @@ public final class CasusProfessions extends RPKBukkitPlugin {
                 getConfig().getString("database.username"),
                 getConfig().getString("database.password")
         );
-        Services.INSTANCE.set(StaminaService.class, new StaminaService(this));
-        Services.INSTANCE.set(NodeService.class, new NodeService(this));
-        Services.INSTANCE.set(ProfessionService.class, new ProfessionService(this));
+        setServiceProviders(new ServiceProvider[] {
+                new StaminaService(this),
+                new NodeService(this),
+                new StaminaService(this),
+                new NodeService(this),
+                new ProfessionService(this)
+        });
         new StaminaRestoreRunnable(this).runTaskTimer(this, 36000L, 72000L);
-        registerCommands();
-        registerListeners();
+        // These need to be called manually in 2.x
+        //registerCommands();
+        //registerListeners();
     }
 
-    private void registerCommands() {
+    @Override
+    public void registerCommands() {
         getCommand("node").setExecutor(new NodeCommand(this));
         getCommand("profession").setExecutor(new ProfessionCommand(this));
     }
 
-    private void registerListeners() {
+    @Override
+    public void registerListeners() {
         registerListeners(new PlayerInteractListener(this));
     }
 

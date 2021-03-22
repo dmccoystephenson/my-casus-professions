@@ -1,11 +1,11 @@
 package com.worldofcasus.professions.command.node;
 
+import com.rpkit.core.exception.UnregisteredServiceException;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.node.Node;
 import com.worldofcasus.professions.node.NodeId;
 import com.worldofcasus.professions.node.NodeItem;
 import com.worldofcasus.professions.node.NodeService;
-import com.rpkit.core.service.Services;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static java.util.Objects.requireNonNull;
 import static org.bukkit.ChatColor.*;
@@ -27,7 +28,7 @@ public final class NodeAddItemCommand implements CommandExecutor {
     private static final String USAGE_MESSAGE = RED + "Usage: /node additem [node]";
     private static final String MUST_BE_A_PLAYER = RED + "You must be a player to use this command.";
     private static final String NODE_SERVICE_NOT_REGISTERED_ERROR = RED + "No node service registered.";
-    private static final String CHANCE_PROMPT_TEXT = WHITE + "What would you like the chance for getting that item to be (percentage)? " + GRAY + "(Type \"cancel\" to cancel)";
+    private static final String CHANCE_PROMPT_TEXT = WHITE + "What would you like the chance for getting that item to be (relative)? " + GRAY + "(Type \"cancel\" to cancel)";
     private static final String NODE_INVALID = RED + "Could not find a node by that ID or name.";
     private static final String NO_PERMISSION = RED + "You do not have permission to add items to nodes.";
 
@@ -43,7 +44,7 @@ public final class NodeAddItemCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission("professions.command.node.additem")) {
+        if (!sender.hasPermission("worldofcasus.professions.command.node.additem")) {
             sender.sendMessage(NO_PERMISSION);
             return true;
         }
@@ -56,28 +57,34 @@ public final class NodeAddItemCommand implements CommandExecutor {
             return true;
         }
         Player player = (Player) sender;
-        NodeService nodeService = Services.INSTANCE.get(NodeService.class);
-        if (nodeService == null) {
+        NodeService nodeService;
+        try {
+            nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
+        } catch (UnregisteredServiceException e) {
             sender.sendMessage(NODE_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }
-        Optional<Node> node;
+        CompletableFuture<Optional<Node>> nodeFuture;
         try {
             int nodeId = Integer.parseInt(args[0]);
-            node = nodeService.getNode(new NodeId(nodeId));
+            nodeFuture = nodeService.getNode(new NodeId(nodeId));
         } catch (NumberFormatException exception) {
             String nodeName = args[0];
-            node = nodeService.getNode(nodeName);
+            nodeFuture = nodeService.getNode(nodeName);
         }
-        if (node.isPresent()) {
-            ItemStack item = player.getInventory().getItemInMainHand();
-            Map<Object, Object> sessionData = new HashMap<>();
-            sessionData.put("node", node.get());
-            sessionData.put("item", item);
-            conversationFactory.withInitialSessionData(sessionData).buildConversation(player).begin();
-        } else {
-            sender.sendMessage(NODE_INVALID);
-        }
+        nodeFuture.thenAccept((node) ->
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    if (node.isPresent()) {
+                        ItemStack item = player.getInventory().getItemInMainHand();
+                        Map<Object, Object> sessionData = new HashMap<>();
+                        sessionData.put("node", node.get());
+                        sessionData.put("item", item);
+                        conversationFactory.withInitialSessionData(sessionData).buildConversation(player).begin();
+                    } else {
+                        sender.sendMessage(NODE_INVALID);
+                    }
+                })
+        );
         return true;
     }
 
@@ -118,8 +125,10 @@ public final class NodeAddItemCommand implements CommandExecutor {
 
         @Override
         protected @Nullable Prompt getNextPrompt(@NotNull ConversationContext context) {
-            NodeService nodeService = Services.INSTANCE.get(NodeService.class);
-            if (nodeService == null) {
+            NodeService nodeService;
+            try {
+                nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
+            } catch (UnregisteredServiceException e) {
                 return END_OF_CONVERSATION;
             }
             nodeService.addNodeItem(
@@ -140,10 +149,11 @@ public final class NodeAddItemCommand implements CommandExecutor {
         }
 
         private String itemAdded(ItemStack item, Node node, int chance) {
+            int totalChance = node.getItems().stream().map(NodeItem::getChance).reduce(0, Integer::sum) + chance;
             return GREEN + "Added item " + item.getType().toString().toLowerCase().replace('_', ' ') +
                     " x " + item.getAmount() +
                     " to node " + node.getName() +
-                    " with chance " + chance + "%";
+                    " with chance " + chance + "/" + totalChance + " / " + String.format("%.2f", ((double) chance / (double) totalChance) * 100.0) + "%";
         }
     }
 }

@@ -18,15 +18,12 @@ import static org.jooq.SQLDialect.MYSQL;
 
 public final class Database {
 
-    private final CasusProfessions plugin;
-
     private final DataSource dataSource;
     private final CacheManager cacheManager;
     private final Settings settings;
     private final Map<Class<? extends Table>, Table> tables;
 
     public Database(CasusProfessions plugin, String url, String username, String password) {
-        this.plugin = plugin;
 
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(url);
@@ -41,9 +38,9 @@ public final class Database {
         tables = new HashMap<>();
         addTable(new NodeTable(plugin, this));
         addTable(new NodeItemTable(plugin, this));
-        addTable(new CharacterStaminaTable(plugin, this));
-        addTable(new ProfessionTable(plugin, this));
-        addTable(new CharacterProfessionTable(plugin, this));
+        addTable(new CharacterStaminaTable(this));
+        addTable(new ProfessionTable(this));
+        addTable(new CharacterProfessionTable(this));
     }
 
     public CacheManager getCacheManager() {

@@ -1,24 +1,22 @@
 package com.worldofcasus.professions.database.table;
 
-import com.worldofcasus.professions.CasusProfessions;
+import com.rpkit.characters.bukkit.character.RPKCharacter;
 import com.worldofcasus.professions.database.Database;
 import com.worldofcasus.professions.profession.Profession;
 import com.worldofcasus.professions.profession.ProfessionId;
-import com.rpkit.characters.bukkit.character.RPKCharacter;
 import org.jooq.Record;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static com.worldofcasus.professions.database.jooq.casus.Tables.CHARACTER_PROFESSION;
 import static org.jooq.impl.DSL.constraint;
 
 public final class CharacterProfessionTable implements Table {
 
-    private final CasusProfessions plugin;
     private final Database database;
 
-    public CharacterProfessionTable(CasusProfessions plugin, Database database) {
-        this.plugin = plugin;
+    public CharacterProfessionTable(Database database) {
         this.database = database;
     }
 
@@ -36,32 +34,36 @@ public final class CharacterProfessionTable implements Table {
                 .execute();
     }
 
-    public Optional<Profession> get(RPKCharacter character) {
-        Record result = database.create()
-                .select(CHARACTER_PROFESSION.PROFESSION_ID)
-                .from(CHARACTER_PROFESSION)
-                .where(CHARACTER_PROFESSION.CHARACTER_ID.eq(character.getId().getValue()))
-                .fetchOne();
-        if (result == null) return Optional.empty();
-        ProfessionId professionId = new ProfessionId(result.get(CHARACTER_PROFESSION.PROFESSION_ID));
-        return database.getTable(ProfessionTable.class)
-                .get(professionId);
+    public CompletableFuture<Optional<Profession>> get(RPKCharacter character) {
+        return CompletableFuture.supplyAsync(() -> {
+            Record result = database.create()
+                    .select(CHARACTER_PROFESSION.PROFESSION_ID)
+                    .from(CHARACTER_PROFESSION)
+                    .where(CHARACTER_PROFESSION.CHARACTER_ID.eq(character.getId()))
+                    .fetchOne();
+            if (result == null) return Optional.empty();
+            ProfessionId professionId = new ProfessionId(result.get(CHARACTER_PROFESSION.PROFESSION_ID));
+            return database.getTable(ProfessionTable.class)
+                    .get(professionId).join();
+        });
     }
 
-    public void insertOrUpdate(RPKCharacter character, Profession profession) {
-        database.create()
-                .insertInto(
-                        CHARACTER_PROFESSION,
-                        CHARACTER_PROFESSION.CHARACTER_ID,
-                        CHARACTER_PROFESSION.PROFESSION_ID
-                )
-                .values(
-                        character.getId().getValue(),
-                        profession.getId().getValue()
-                )
-                .onDuplicateKeyUpdate()
-                .set(CHARACTER_PROFESSION.PROFESSION_ID, profession.getId().getValue())
-                .where(CHARACTER_PROFESSION.CHARACTER_ID.eq(character.getId().getValue()))
-                .execute();
+    public CompletableFuture<Void> insertOrUpdate(RPKCharacter character, Profession profession) {
+        return CompletableFuture.runAsync(() ->
+                database.create()
+                        .insertInto(
+                                CHARACTER_PROFESSION,
+                                CHARACTER_PROFESSION.CHARACTER_ID,
+                                CHARACTER_PROFESSION.PROFESSION_ID
+                        )
+                        .values(
+                                character.getId(),
+                                profession.getId().getValue()
+                        )
+                        .onDuplicateKeyUpdate()
+                        .set(CHARACTER_PROFESSION.PROFESSION_ID, profession.getId().getValue())
+                        .where(CHARACTER_PROFESSION.CHARACTER_ID.eq(character.getId()))
+                        .execute()
+        );
     }
 }

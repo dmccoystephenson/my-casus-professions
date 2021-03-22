@@ -12,16 +12,13 @@ import static org.bukkit.ChatColor.RED;
 
 public final class ProfessionCommand implements CommandExecutor {
 
-    private static final String USAGE_MESSAGE = RED + "Usage: /profession [create|set]";
-
-    private final CasusProfessions plugin;
+    private static final String USAGE_MESSAGE = RED + "Usage: /profession [create|set|list]";
 
     private final ProfessionCreateCommand professionCreateCommand;
     private final ProfessionSetCommand professionSetCommand;
     private final ProfessionListCommand professionListCommand;
 
     public ProfessionCommand(CasusProfessions plugin) {
-        this.plugin = plugin;
         professionCreateCommand = new ProfessionCreateCommand(plugin);
         professionSetCommand = new ProfessionSetCommand(plugin);
         professionListCommand = new ProfessionListCommand(plugin);

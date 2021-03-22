@@ -20,7 +20,7 @@ public class NodeReloadCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission("professions.command.reload")) {
+        if (!sender.hasPermission("worldofcasus.professions.command.reload")) {
             sender.sendMessage(NO_PERMISSION);
             return true;
         }

@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static com.worldofcasus.professions.database.jooq.casus.Tables.NODE;
 import static com.worldofcasus.professions.database.jooq.casus.Tables.NODE_ITEM;
@@ -48,62 +49,68 @@ public final class NodeItemTable implements Table {
                 .execute();
     }
 
-    public List<NodeItem> get(NodeId nodeId) {
-        return database.create()
-                .select(
-                        NODE_ITEM.ID,
-                        NODE_ITEM.ITEM,
-                        NODE_ITEM.CHANCE
-                )
-                .from(NODE_ITEM)
-                .where(NODE_ITEM.NODE_ID.eq(nodeId.getValue()))
-                .fetch()
-                .map(result -> new NodeItem(
-                        new NodeItemId(result.get(NODE_ITEM.ID)),
-                        itemStackFromByteArray(result.get(NODE_ITEM.ITEM)),
-                        result.get(NODE_ITEM.CHANCE)
-                ));
+    public CompletableFuture<List<NodeItem>> get(NodeId nodeId) {
+        return CompletableFuture.supplyAsync(() ->
+                database.create()
+                        .select(
+                                NODE_ITEM.ID,
+                                NODE_ITEM.ITEM,
+                                NODE_ITEM.CHANCE
+                        )
+                        .from(NODE_ITEM)
+                        .where(NODE_ITEM.NODE_ID.eq(nodeId.getValue()))
+                        .fetch()
+                        .map(result -> new NodeItem(
+                                new NodeItemId(result.get(NODE_ITEM.ID)),
+                                itemStackFromByteArray(result.get(NODE_ITEM.ITEM)),
+                                result.get(NODE_ITEM.CHANCE)
+                        ))
+        );
     }
 
-    public Optional<NodeItem> get(NodeItemId nodeItemId) {
-        Record result = database.create()
-                .select(
-                        NODE_ITEM.ID,
-                        NODE_ITEM.ITEM,
-                        NODE_ITEM.CHANCE
-                )
-                .from(NODE_ITEM)
-                .where(NODE_ITEM.ID.eq(nodeItemId.getValue()))
-                .fetchOne();
-        if (result == null) return Optional.empty();
-        return Optional.of(new NodeItem(
-                new NodeItemId(result.get(NODE_ITEM.ID)),
-                itemStackFromByteArray(result.get(NODE_ITEM.ITEM)),
-                result.get(NODE_ITEM.CHANCE)
-        ));
+    public CompletableFuture<Optional<NodeItem>> get(NodeItemId nodeItemId) {
+        return CompletableFuture.supplyAsync(() -> {
+            Record result = database.create()
+                    .select(
+                            NODE_ITEM.ID,
+                            NODE_ITEM.ITEM,
+                            NODE_ITEM.CHANCE
+                    )
+                    .from(NODE_ITEM)
+                    .where(NODE_ITEM.ID.eq(nodeItemId.getValue()))
+                    .fetchOne();
+            if (result == null) return Optional.empty();
+            return Optional.of(toDomain(result));
+        });
     }
 
-    public void insert(NodeId nodeId, NodeItem item) {
-        database.create()
-                .insertInto(
-                        NODE_ITEM,
-                        NODE_ITEM.NODE_ID,
-                        NODE_ITEM.ITEM,
-                        NODE_ITEM.CHANCE
-                )
-                .values(
-                        nodeId.getValue(),
-                        byteArrayFromItemStack(item.getItem()),
-                        item.getChance()
-                )
-                .execute();
+    public CompletableFuture<Optional<NodeItem>> insert(NodeId nodeId, NodeItem item) {
+        return CompletableFuture.supplyAsync(() ->
+                database.create()
+                        .insertInto(NODE_ITEM)
+                        .set(NODE_ITEM.NODE_ID, nodeId.getValue())
+                        .set(NODE_ITEM.ITEM, byteArrayFromItemStack(item.getItem()))
+                        .set(NODE_ITEM.CHANCE, item.getChance())
+                        .returning()
+                        .fetchOptional()
+                        .map(this::toDomain)
+        );
     }
 
-    public void delete(NodeItem item) {
-        database.create()
+    public CompletableFuture<Void> delete(NodeItem item) {
+        return CompletableFuture.runAsync(() -> database.create()
                 .deleteFrom(NODE_ITEM)
                 .where(NODE_ITEM.ID.eq(item.getId().getValue()))
-                .execute();
+                .execute());
+    }
+
+    private NodeItem toDomain(Record record) {
+        if (record == null) return null;
+        return new NodeItem(
+                new NodeItemId(record.get(NODE_ITEM.NODE_ID)),
+                itemStackFromByteArray(record.get(NODE_ITEM.ITEM)),
+                record.get(NODE_ITEM.CHANCE)
+        );
     }
 
     private ItemStack itemStackFromByteArray(byte[] bytes) {

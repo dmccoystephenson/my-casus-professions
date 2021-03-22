@@ -1,8 +1,8 @@
 package com.worldofcasus.professions.command.node;
 
+import com.rpkit.core.exception.UnregisteredServiceException;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.node.NodeService;
-import com.rpkit.core.service.Services;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -30,8 +30,10 @@ public final class NodeListCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        NodeService nodeService = Services.INSTANCE.get(NodeService.class);
-        if (nodeService == null) {
+        NodeService nodeService;
+        try {
+            nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
+        } catch (UnregisteredServiceException e) {
             sender.sendMessage(NODE_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }
