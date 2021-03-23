@@ -20,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -34,6 +35,7 @@ public final class PlayerInteractListener implements Listener {
 
     private final CasusProfessions plugin;
     private final Random random;
+    private final List<CompletableFuture<Void>> harvestQueue = new ArrayList<>();
 
     public PlayerInteractListener(CasusProfessions plugin) {
         this.plugin = plugin;
@@ -77,15 +79,19 @@ public final class PlayerInteractListener implements Listener {
         if (character == null) {
             return;
         }
+        NodeService nodeService;
+        try {
+            nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
+        } catch (UnregisteredServiceException e) {
+            return;
+        }
+        List<Node> nodes = nodeService.getNodesAt(event.getClickedBlock().getLocation());
+        if (!nodes.isEmpty()) {
+            event.setCancelled(true);
+        }
         CompletableFuture<Optional<Profession>> professionFuture = professionService.getProfession(character);
         professionFuture.thenAccept((profession) -> {
             if (!profession.isPresent()) {
-                return;
-            }
-            NodeService nodeService;
-            try {
-                nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
-            } catch (UnregisteredServiceException e) {
                 return;
             }
             StaminaService staminaService;
@@ -94,19 +100,34 @@ public final class PlayerInteractListener implements Listener {
             } catch (UnregisteredServiceException e) {
                 return;
             }
-            List<Node> nodes = nodeService.getNodesAt(event.getClickedBlock().getLocation());
-            if (!nodes.isEmpty()) {
-                event.setCancelled(true);
-            }
             for (Node node : nodes) {
-                harvest(staminaService, player, character, profession.get(), node, block.getRelative(event.getBlockFace()).getLocation());
+                synchronized (harvestQueue) {
+                    if (!harvestQueue.isEmpty()) {
+                        harvestQueue.get(harvestQueue.size() - 1).thenRun(() -> queueHarvest(event, block, player, character, profession.get(), staminaService, node));
+                    } else {
+                        queueHarvest(event, block, player, character, profession.get(), staminaService, node);
+                    }
+                }
             }
         });
     }
 
+    private void queueHarvest(PlayerInteractEvent event, Block block, Player player, RPKCharacter character, Profession profession, StaminaService staminaService, Node node) {
+        synchronized (harvestQueue) {
+            harvestQueue.add(harvest(
+                    staminaService,
+                    player,
+                    character,
+                    profession,
+                    node,
+                    block.getRelative(event.getBlockFace()).getLocation()
+            ));
+        }
+    }
+
     private CompletableFuture<Void> harvest(StaminaService staminaService, Player player, RPKCharacter character, Profession profession, Node node, Location dropLocation) {
         if (!node.getRequiredProfession().getId().equals(profession.getId())) return CompletableFuture.completedFuture(null);
-        return staminaService.getStamina(character).thenAccept((stamina) -> {
+        return staminaService.getStamina(character).thenAcceptAsync((stamina) -> {
             if (stamina <= 0) {
                 player.sendMessage(NO_STAMINA);
                 return;
@@ -126,10 +147,10 @@ public final class PlayerInteractListener implements Listener {
             }
             if (chosenItem == null) return;
             final NodeItem finalChosenItem = chosenItem;
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                player.getWorld().dropItemNaturally(dropLocation, finalChosenItem.getItem());
-                staminaService.setStamina(character, stamina - plugin.getConfig().getInt("stamina.harvest-cost"));
-            });
+            staminaService.setStamina(character, stamina - plugin.getConfig().getInt("stamina.harvest-cost")).join();
+            plugin.getServer().getScheduler().runTask(plugin, () ->
+                    player.getWorld().dropItemNaturally(dropLocation, finalChosenItem.getItem())
+            );
         });
     }
 
