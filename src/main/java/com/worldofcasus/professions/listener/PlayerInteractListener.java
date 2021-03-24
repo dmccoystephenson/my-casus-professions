@@ -146,9 +146,11 @@ public final class PlayerInteractListener implements Listener {
             if (chosenItem == null) return;
             final NodeItem finalChosenItem = chosenItem;
             staminaService.setStamina(character, stamina - plugin.getConfig().getInt("stamina.harvest-cost")).join();
-            plugin.getServer().getScheduler().runTask(plugin, () ->
-                    player.getWorld().dropItemNaturally(dropLocation, finalChosenItem.getItem())
-            );
+            if (chosenItem.getItem().getType().isItem()) {
+                plugin.getServer().getScheduler().runTask(plugin, () ->
+                        player.getWorld().dropItemNaturally(dropLocation, finalChosenItem.getItem())
+                );
+            }
         });
     }
 
