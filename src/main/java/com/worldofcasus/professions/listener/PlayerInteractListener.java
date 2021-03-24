@@ -20,10 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static org.bukkit.ChatColor.RED;
@@ -102,6 +99,7 @@ public final class PlayerInteractListener implements Listener {
             }
             for (Node node : nodes) {
                 synchronized (harvestQueue) {
+                    harvestQueue.removeIf(CompletableFuture::isDone);
                     if (!harvestQueue.isEmpty()) {
                         harvestQueue.get(harvestQueue.size() - 1).thenRun(() -> queueHarvest(event, block, player, character, profession.get(), staminaService, node));
                     } else {
