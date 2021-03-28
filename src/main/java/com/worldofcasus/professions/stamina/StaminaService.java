@@ -4,6 +4,7 @@ import com.rpkit.characters.bukkit.character.RPKCharacter;
 import com.rpkit.core.service.ServiceProvider;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.database.table.CharacterStaminaTable;
+import org.jooq.DSLContext;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -26,8 +27,16 @@ public final class StaminaService implements ServiceProvider {
                 .thenApply((characterStamina) -> characterStamina.orElse(MAX_STAMINA));
     }
 
+    public CompletableFuture<Void> getAndUpdateStamina(RPKCharacter character, CharacterStaminaTable.StaminaUpdateFunction updateFunction) {
+        return plugin.getDatabase().getTable(CharacterStaminaTable.class).getAndUpdate(character, updateFunction);
+    }
+
     public CompletableFuture<Void> setStamina(RPKCharacter character, int stamina) {
         return plugin.getDatabase().getTable(CharacterStaminaTable.class).insertOrUpdate(character, stamina);
+    }
+
+    public CompletableFuture<Void> setStamina(DSLContext ctx, RPKCharacter character, int stamina) {
+        return plugin.getDatabase().getTable(CharacterStaminaTable.class).insertOrUpdate(ctx, character, stamina);
     }
 
     public CompletableFuture<Void> restoreStamina() {
