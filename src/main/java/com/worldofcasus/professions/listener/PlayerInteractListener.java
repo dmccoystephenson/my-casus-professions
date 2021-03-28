@@ -116,7 +116,8 @@ public final class PlayerInteractListener implements Listener {
     private CompletableFuture<Void> harvest(StaminaService staminaService, Player player, RPKCharacter character, Profession profession, Node node, Location dropLocation) {
         if (!node.getRequiredProfession().getId().equals(profession.getId())) return CompletableFuture.completedFuture(null);
         return staminaService.getAndUpdateStamina(character, (ctx, stamina) -> {
-            if (stamina <= 0) {
+            int harvestCost = plugin.getConfig().getInt("stamina.harvest-cost");
+            if (stamina - harvestCost <= 0) {
                 player.sendMessage(NO_STAMINA);
                 return;
             }
@@ -135,7 +136,7 @@ public final class PlayerInteractListener implements Listener {
             }
             if (chosenItem == null) return;
             final NodeItem finalChosenItem = chosenItem;
-            staminaService.setStamina(ctx, character, stamina - plugin.getConfig().getInt("stamina.harvest-cost")).join();
+            staminaService.setStamina(ctx, character, stamina - harvestCost).join();
             if (chosenItem.getItem().getType().isItem()) {
                 plugin.getServer().getScheduler().runTask(plugin, () ->
                         player.getWorld().dropItemNaturally(dropLocation, finalChosenItem.getItem())
