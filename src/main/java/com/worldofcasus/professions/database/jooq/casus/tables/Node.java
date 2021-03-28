@@ -148,16 +148,7 @@ public class Node extends TableImpl<NodeRecord> {
 
     @Override
     public List<UniqueKey<NodeRecord>> getKeys() {
-        return Arrays.<UniqueKey<NodeRecord>>asList(Keys.KEY_NODE_PRIMARY, Keys.KEY_NODE_NODE_NAME_UINDEX);
-    }
-
-    @Override
-    public List<ForeignKey<NodeRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<NodeRecord, ?>>asList(Keys.NODE_PROFESSION_ID_FK);
-    }
-
-    public Profession profession() {
-        return new Profession(this, Keys.NODE_PROFESSION_ID_FK);
+        return Arrays.<UniqueKey<NodeRecord>>asList(Keys.KEY_NODE_PRIMARY, Keys.KEY_NODE_UK_NODE_NAME);
     }
 
     @Override

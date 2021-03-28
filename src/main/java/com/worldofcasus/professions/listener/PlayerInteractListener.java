@@ -20,7 +20,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 import static org.bukkit.ChatColor.RED;
@@ -29,10 +31,10 @@ import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
 public final class PlayerInteractListener implements Listener {
 
     private static final String NO_STAMINA = RED + "You feel completely exhausted. Please rest for a while!";
+    private  static final String PLEASE_WAIT = RED + "You're going too fast! Please wait for a couple of seconds.";
 
     private final CasusProfessions plugin;
     private final Random random;
-    private final List<CompletableFuture<Void>> harvestQueue = new ArrayList<>();
 
     public PlayerInteractListener(CasusProfessions plugin) {
         this.plugin = plugin;
@@ -98,34 +100,22 @@ public final class PlayerInteractListener implements Listener {
                 return;
             }
             for (Node node : nodes) {
-                synchronized (harvestQueue) {
-                    harvestQueue.removeIf(CompletableFuture::isDone);
-                    if (!harvestQueue.isEmpty()) {
-                        harvestQueue.get(harvestQueue.size() - 1).thenRun(() -> queueHarvest(event, block, player, character, profession.get(), staminaService, node));
-                    } else {
-                        queueHarvest(event, block, player, character, profession.get(), staminaService, node);
-                    }
-                }
-            }
-        });
-    }
-
-    private void queueHarvest(PlayerInteractEvent event, Block block, Player player, RPKCharacter character, Profession profession, StaminaService staminaService, Node node) {
-        synchronized (harvestQueue) {
-            harvestQueue.add(harvest(
+                harvest(
                     staminaService,
                     player,
                     character,
-                    profession,
+                    profession.get(),
                     node,
                     block.getRelative(event.getBlockFace()).getLocation()
-            ));
-        }
+                );
+            }
+
+        });
     }
 
     private CompletableFuture<Void> harvest(StaminaService staminaService, Player player, RPKCharacter character, Profession profession, Node node, Location dropLocation) {
         if (!node.getRequiredProfession().getId().equals(profession.getId())) return CompletableFuture.completedFuture(null);
-        return staminaService.getStamina(character).thenAcceptAsync((stamina) -> {
+        return staminaService.getAndUpdateStamina(character, (ctx, stamina) -> {
             if (stamina <= 0) {
                 player.sendMessage(NO_STAMINA);
                 return;
@@ -145,7 +135,7 @@ public final class PlayerInteractListener implements Listener {
             }
             if (chosenItem == null) return;
             final NodeItem finalChosenItem = chosenItem;
-            staminaService.setStamina(character, stamina - plugin.getConfig().getInt("stamina.harvest-cost")).join();
+            staminaService.setStamina(ctx, character, stamina - plugin.getConfig().getInt("stamina.harvest-cost")).join();
             if (chosenItem.getItem().getType().isItem()) {
                 plugin.getServer().getScheduler().runTask(plugin, () ->
                         player.getWorld().dropItemNaturally(dropLocation, finalChosenItem.getItem())

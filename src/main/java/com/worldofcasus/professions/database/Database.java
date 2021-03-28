@@ -6,6 +6,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheManagerBuilder;
+import org.jooq.Configuration;
 import org.jooq.DSLContext;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
@@ -49,6 +50,10 @@ public final class Database {
 
     public DSLContext create() {
         return DSL.using(dataSource, MYSQL, settings);
+    }
+
+    public DSLContext using(Configuration configuration) {
+        return DSL.using(configuration);
     }
 
     public <T extends Table> void addTable(T table) {

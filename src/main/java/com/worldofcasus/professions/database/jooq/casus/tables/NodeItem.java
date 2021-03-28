@@ -123,11 +123,16 @@ public class NodeItem extends TableImpl<NodeItemRecord> {
 
     @Override
     public List<ForeignKey<NodeItemRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<NodeItemRecord, ?>>asList(Keys.NODE_ITEM_NODE_ID_FK);
+        return Arrays.<ForeignKey<NodeItemRecord, ?>>asList(Keys.FK_NODE_ITEM_NODE_ID);
     }
 
+    private transient Node _node;
+
     public Node node() {
-        return new Node(this, Keys.NODE_ITEM_NODE_ID_FK);
+        if (_node == null)
+            _node = new Node(this, Keys.FK_NODE_ITEM_NODE_ID);
+
+        return _node;
     }
 
     @Override

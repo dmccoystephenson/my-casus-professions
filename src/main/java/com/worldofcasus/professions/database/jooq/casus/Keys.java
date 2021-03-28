@@ -33,18 +33,17 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final UniqueKey<CharacterProfessionRecord> KEY_CHARACTER_PROFESSION_CHARACTER_PROFESSION_CHARACTER_ID_UINDEX = Internal.createUniqueKey(CharacterProfession.CHARACTER_PROFESSION, DSL.name("KEY_character_profession_character_profession_character_id_uindex"), new TableField[] { CharacterProfession.CHARACTER_PROFESSION.CHARACTER_ID }, true);
+    public static final UniqueKey<CharacterProfessionRecord> KEY_CHARACTER_PROFESSION_PRIMARY = Internal.createUniqueKey(CharacterProfession.CHARACTER_PROFESSION, DSL.name("KEY_character_profession_PRIMARY"), new TableField[] { CharacterProfession.CHARACTER_PROFESSION.CHARACTER_ID }, true);
     public static final UniqueKey<CharacterStaminaRecord> KEY_CHARACTER_STAMINA_PRIMARY = Internal.createUniqueKey(CharacterStamina.CHARACTER_STAMINA, DSL.name("KEY_character_stamina_PRIMARY"), new TableField[] { CharacterStamina.CHARACTER_STAMINA.CHARACTER_ID }, true);
-    public static final UniqueKey<NodeRecord> KEY_NODE_NODE_NAME_UINDEX = Internal.createUniqueKey(Node.NODE, DSL.name("KEY_node_node_name_uindex"), new TableField[] { Node.NODE.NAME }, true);
     public static final UniqueKey<NodeRecord> KEY_NODE_PRIMARY = Internal.createUniqueKey(Node.NODE, DSL.name("KEY_node_PRIMARY"), new TableField[] { Node.NODE.ID }, true);
+    public static final UniqueKey<NodeRecord> KEY_NODE_UK_NODE_NAME = Internal.createUniqueKey(Node.NODE, DSL.name("KEY_node_uk_node_name"), new TableField[] { Node.NODE.NAME }, true);
     public static final UniqueKey<NodeItemRecord> KEY_NODE_ITEM_PRIMARY = Internal.createUniqueKey(NodeItem.NODE_ITEM, DSL.name("KEY_node_item_PRIMARY"), new TableField[] { NodeItem.NODE_ITEM.ID }, true);
     public static final UniqueKey<ProfessionRecord> KEY_PROFESSION_PRIMARY = Internal.createUniqueKey(Profession.PROFESSION, DSL.name("KEY_profession_PRIMARY"), new TableField[] { Profession.PROFESSION.ID }, true);
-    public static final UniqueKey<ProfessionRecord> KEY_PROFESSION_PROFESSION_NAME_UINDEX = Internal.createUniqueKey(Profession.PROFESSION, DSL.name("KEY_profession_profession_name_uindex"), new TableField[] { Profession.PROFESSION.NAME }, true);
+    public static final UniqueKey<ProfessionRecord> KEY_PROFESSION_UK_PROFESSION_NAME = Internal.createUniqueKey(Profession.PROFESSION, DSL.name("KEY_profession_uk_profession_name"), new TableField[] { Profession.PROFESSION.NAME }, true);
 
     // -------------------------------------------------------------------------
     // FOREIGN KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final ForeignKey<NodeRecord, ProfessionRecord> NODE_PROFESSION_ID_FK = Internal.createForeignKey(Node.NODE, DSL.name("node_profession_id_fk"), new TableField[] { Node.NODE.REQUIRED_PROFESSION_ID }, Keys.KEY_PROFESSION_PRIMARY, new TableField[] { Profession.PROFESSION.ID }, true);
-    public static final ForeignKey<NodeItemRecord, NodeRecord> NODE_ITEM_NODE_ID_FK = Internal.createForeignKey(NodeItem.NODE_ITEM, DSL.name("node_item_node_id_fk"), new TableField[] { NodeItem.NODE_ITEM.NODE_ID }, Keys.KEY_NODE_PRIMARY, new TableField[] { Node.NODE.ID }, true);
+    public static final ForeignKey<NodeItemRecord, NodeRecord> FK_NODE_ITEM_NODE_ID = Internal.createForeignKey(NodeItem.NODE_ITEM, DSL.name("fk_node_item_node_id"), new TableField[] { NodeItem.NODE_ITEM.NODE_ID }, Keys.KEY_NODE_PRIMARY, new TableField[] { Node.NODE.ID }, true);
 }

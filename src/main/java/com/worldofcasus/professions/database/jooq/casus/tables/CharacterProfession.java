@@ -96,8 +96,13 @@ public class CharacterProfession extends TableImpl<CharacterProfessionRecord> {
     }
 
     @Override
+    public UniqueKey<CharacterProfessionRecord> getPrimaryKey() {
+        return Keys.KEY_CHARACTER_PROFESSION_PRIMARY;
+    }
+
+    @Override
     public List<UniqueKey<CharacterProfessionRecord>> getKeys() {
-        return Arrays.<UniqueKey<CharacterProfessionRecord>>asList(Keys.KEY_CHARACTER_PROFESSION_CHARACTER_PROFESSION_CHARACTER_ID_UINDEX);
+        return Arrays.<UniqueKey<CharacterProfessionRecord>>asList(Keys.KEY_CHARACTER_PROFESSION_PRIMARY);
     }
 
     @Override

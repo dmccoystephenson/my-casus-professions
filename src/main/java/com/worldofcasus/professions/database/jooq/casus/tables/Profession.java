@@ -108,7 +108,7 @@ public class Profession extends TableImpl<ProfessionRecord> {
 
     @Override
     public List<UniqueKey<ProfessionRecord>> getKeys() {
-        return Arrays.<UniqueKey<ProfessionRecord>>asList(Keys.KEY_PROFESSION_PRIMARY, Keys.KEY_PROFESSION_PROFESSION_NAME_UINDEX);
+        return Arrays.<UniqueKey<ProfessionRecord>>asList(Keys.KEY_PROFESSION_PRIMARY, Keys.KEY_PROFESSION_UK_PROFESSION_NAME);
     }
 
     @Override
