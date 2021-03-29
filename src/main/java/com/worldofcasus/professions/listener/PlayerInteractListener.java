@@ -117,7 +117,7 @@ public final class PlayerInteractListener implements Listener {
         if (!node.getRequiredProfession().getId().equals(profession.getId())) return CompletableFuture.completedFuture(null);
         return staminaService.getAndUpdateStamina(character, (ctx, stamina) -> {
             int harvestCost = plugin.getConfig().getInt("stamina.harvest-cost");
-            if (stamina - harvestCost <= 0) {
+            if (stamina - harvestCost < 0) {
                 player.sendMessage(NO_STAMINA);
                 return;
             }
