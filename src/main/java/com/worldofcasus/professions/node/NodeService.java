@@ -71,7 +71,7 @@ public final class NodeService implements ServiceProvider {
     public CompletableFuture<Void> deleteNode(Node node) {
         return plugin.getDatabase().getTable(NodeTable.class).delete(node).thenRun(() -> {
             synchronized (this) {
-                nodes.remove(node);
+                nodes.removeIf(preloadedNode -> preloadedNode.getId().equals(node.getId()));
             }
         });
     }
@@ -81,10 +81,52 @@ public final class NodeService implements ServiceProvider {
     }
 
     public CompletableFuture<Optional<NodeItem>> addNodeItem(Node node, NodeItem nodeItem) {
-        return plugin.getDatabase().getTable(NodeItemTable.class).insert(node.getId(), nodeItem);
+        return plugin.getDatabase().getTable(NodeItemTable.class).insert(node.getId(), nodeItem).thenApply(optionalAddedNodeItem -> {
+            optionalAddedNodeItem.ifPresent(addedNodeItem -> {
+                synchronized (this) {
+                    Node foundNode = nodes.stream().filter(preloadedNode -> preloadedNode.getId().equals(node.getId())).findFirst().orElse(null);
+                    int nodeIndex = nodes.indexOf(foundNode);
+                    nodes.removeIf(preloadedNode -> preloadedNode.getId().equals(node.getId()));
+                    List<NodeItem> items = new ArrayList<>(node.getItems());
+                    items.add(addedNodeItem);
+                    nodes.add(nodeIndex, new Node(
+                            node.getId(),
+                            node.getName(),
+                            node.getMinLocation(),
+                            node.getMaxLocation(),
+                            node.getRequiredProfession(),
+                            items
+                    ));
+                }
+            });
+            return optionalAddedNodeItem;
+        });
     }
 
     public CompletableFuture<Void> removeNodeItem(NodeItem nodeItem) {
-        return plugin.getDatabase().getTable(NodeItemTable.class).delete(nodeItem);
+        return plugin.getDatabase().getTable(NodeItemTable.class).delete(nodeItem).thenRun(() -> {
+            synchronized (this) {
+                Optional<Node> optionalNode = nodes.stream()
+                        .filter(node ->
+                                node.getItems().stream()
+                                        .anyMatch(nodeNodeItem -> nodeNodeItem.getId().equals(nodeItem.getId()))
+                        ).findFirst();
+                optionalNode.ifPresent(node -> {
+                    Node foundNode = nodes.stream().filter(preloadedNode -> preloadedNode.getId().equals(node.getId())).findFirst().orElse(null);
+                    int nodeIndex = nodes.indexOf(foundNode);
+                    nodes.removeIf(preloadedNode -> preloadedNode.getId().equals(node.getId()));
+                    List<NodeItem> items = new ArrayList<>(node.getItems());
+                    items.removeIf(preloadedNodeItem -> preloadedNodeItem.getId().equals(nodeItem.getId()));
+                    nodes.add(nodeIndex, new Node(
+                            node.getId(),
+                            node.getName(),
+                            node.getMinLocation(),
+                            node.getMaxLocation(),
+                            node.getRequiredProfession(),
+                            items
+                    ));
+                });
+            }
+        });
     }
 }
