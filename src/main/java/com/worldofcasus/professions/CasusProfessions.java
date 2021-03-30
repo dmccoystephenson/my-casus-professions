@@ -27,8 +27,6 @@ public final class CasusProfessions extends RPKBukkitPlugin {
         setServiceProviders(new ServiceProvider[] {
                 new StaminaService(this),
                 new NodeService(this),
-                new StaminaService(this),
-                new NodeService(this),
                 new ProfessionService(this)
         });
         new StaminaRestoreRunnable(this).runTaskTimer(this, 36000L, 72000L);

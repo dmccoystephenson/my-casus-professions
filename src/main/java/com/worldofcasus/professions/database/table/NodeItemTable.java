@@ -2,6 +2,7 @@ package com.worldofcasus.professions.database.table;
 
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.database.Database;
+import com.worldofcasus.professions.node.Node;
 import com.worldofcasus.professions.node.NodeId;
 import com.worldofcasus.professions.node.NodeItem;
 import com.worldofcasus.professions.node.NodeItemId;
@@ -54,17 +55,14 @@ public final class NodeItemTable implements Table {
                 database.create()
                         .select(
                                 NODE_ITEM.ID,
+                                NODE_ITEM.NODE_ID,
                                 NODE_ITEM.ITEM,
                                 NODE_ITEM.CHANCE
                         )
                         .from(NODE_ITEM)
                         .where(NODE_ITEM.NODE_ID.eq(nodeId.getValue()))
                         .fetch()
-                        .map(result -> new NodeItem(
-                                new NodeItemId(result.get(NODE_ITEM.ID)),
-                                itemStackFromByteArray(result.get(NODE_ITEM.ITEM)),
-                                result.get(NODE_ITEM.CHANCE)
-                        ))
+                        .map(this::toDomain)
         );
     }
 
@@ -73,6 +71,7 @@ public final class NodeItemTable implements Table {
             Record result = database.create()
                     .select(
                             NODE_ITEM.ID,
+                            NODE_ITEM.NODE_ID,
                             NODE_ITEM.ITEM,
                             NODE_ITEM.CHANCE
                     )
@@ -104,10 +103,19 @@ public final class NodeItemTable implements Table {
                 .execute());
     }
 
+    public CompletableFuture<Void> delete(Node node) {
+        return CompletableFuture.runAsync(() ->
+                database.create()
+                        .deleteFrom(NODE_ITEM)
+                        .where(NODE_ITEM.NODE_ID.eq(node.getId().getValue()))
+                        .execute()
+        );
+    }
+
     private NodeItem toDomain(Record record) {
         if (record == null) return null;
         return new NodeItem(
-                new NodeItemId(record.get(NODE_ITEM.NODE_ID)),
+                new NodeItemId(record.get(NODE_ITEM.ID)),
                 itemStackFromByteArray(record.get(NODE_ITEM.ITEM)),
                 record.get(NODE_ITEM.CHANCE)
         );

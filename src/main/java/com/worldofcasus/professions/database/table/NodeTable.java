@@ -172,12 +172,13 @@ public final class NodeTable implements Table{
     }
 
     public CompletableFuture<Void> delete(Node node) {
-        return CompletableFuture.runAsync(() ->
-                database.create()
-                        .deleteFrom(NODE)
-                        .where(NODE.ID.eq(node.getId().getValue()))
-                        .execute()
-        );
+        return CompletableFuture.runAsync(() -> {
+            database.getTable(NodeItemTable.class).delete(node).join();
+            database.create()
+                    .deleteFrom(NODE)
+                    .where(NODE.ID.eq(node.getId().getValue()))
+                    .execute();
+        });
     }
 
     private CompletableFuture<Node> toDomain(Record result) {

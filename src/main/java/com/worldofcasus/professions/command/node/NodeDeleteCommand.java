@@ -55,16 +55,16 @@ public final class NodeDeleteCommand implements CommandExecutor {
             nodeFuture = nodeService.getNode(nodeName);
         }
         nodeFuture.thenAccept((node) ->
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    if (node.isPresent()) {
-                        Node value = node.get();
-                        nodeService.deleteNode(value).thenRun(() -> {
-                            sender.sendMessage(nodeDeleted(value));
-                        });
-                    } else {
-                        sender.sendMessage(invalidNode(name));
-                    }
-                })
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                if (node.isPresent()) {
+                    Node value = node.get();
+                    nodeService.deleteNode(value).thenRun(() -> {
+                        sender.sendMessage(nodeDeleted(value));
+                    });
+                } else {
+                    sender.sendMessage(invalidNode(name));
+                }
+            })
         );
 
         return true;
@@ -75,6 +75,6 @@ public final class NodeDeleteCommand implements CommandExecutor {
     }
 
     private String invalidNode(String nodeName) {
-        return RED + "No node by the name " + nodeName + "exists.";
+        return RED + "No node by the name " + nodeName + " exists.";
     }
 }

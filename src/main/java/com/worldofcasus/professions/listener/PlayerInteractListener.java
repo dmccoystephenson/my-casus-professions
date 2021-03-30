@@ -19,19 +19,23 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
+import static org.bukkit.ChatColor.GREEN;
 import static org.bukkit.ChatColor.RED;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
 
 public final class PlayerInteractListener implements Listener {
 
     private static final String NO_STAMINA = RED + "You feel completely exhausted. Please rest for a while!";
-    private  static final String PLEASE_WAIT = RED + "You're going too fast! Please wait for a couple of seconds.";
+    private static final String NO_ITEMS = RED + "That node has no drops set up.";
+    private static final String NO_ITEM_DROPPED = RED + "Bad luck, you didn't get an item this time.";
 
     private final CasusProfessions plugin;
     private final Random random;
@@ -114,7 +118,10 @@ public final class PlayerInteractListener implements Listener {
     }
 
     private CompletableFuture<Void> harvest(StaminaService staminaService, Player player, RPKCharacter character, Profession profession, Node node, Location dropLocation) {
-        if (!node.getRequiredProfession().getId().equals(profession.getId())) return CompletableFuture.completedFuture(null);
+        if (!node.getRequiredProfession().getId().equals(profession.getId())) {
+            player.sendMessage(wrongProfession(node.getRequiredProfession(), profession));
+            return CompletableFuture.completedFuture(null);
+        }
         return staminaService.getAndUpdateStamina(character, (ctx, stamina) -> {
             int harvestCost = plugin.getConfig().getInt("stamina.harvest-cost");
             if (stamina - harvestCost < 0) {
@@ -122,7 +129,10 @@ public final class PlayerInteractListener implements Listener {
                 return;
             }
             List<NodeItem> items = node.getItems();
-            if (items.isEmpty()) return;
+            if (items.isEmpty()) {
+                player.sendMessage(NO_ITEMS);
+                return;
+            }
             int chanceSum = items.stream().map(NodeItem::getChance).reduce(0, Integer::sum);
             int choice = random.nextInt(chanceSum);
             int sum = 0;
@@ -138,11 +148,32 @@ public final class PlayerInteractListener implements Listener {
             final NodeItem finalChosenItem = chosenItem;
             staminaService.setStamina(ctx, character, stamina - harvestCost).join();
             if (chosenItem.getItem().getType().isItem()) {
+                player.sendMessage(itemDropped(finalChosenItem.getItem()));
                 plugin.getServer().getScheduler().runTask(plugin, () ->
                         player.getWorld().dropItemNaturally(dropLocation, finalChosenItem.getItem())
                 );
+            } else {
+                player.sendMessage(NO_ITEM_DROPPED);
             }
         });
+    }
+
+    private String wrongProfession(Profession requiredProfession, Profession profession) {
+        return RED + "This node requires you to be a " + requiredProfession.getName() + ", you are a " + profession.getName() + ".";
+    }
+
+    private String itemDropped(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        String name = null;
+        if (meta != null) {
+            if (meta.hasDisplayName()) {
+                name = meta.getDisplayName();
+            }
+        }
+        if (name == null) {
+            name = item.getType().toString().toLowerCase().replace('_', ' ');
+        }
+        return GREEN + "You got " + item.getAmount() + " x " + name;
     }
 
 }

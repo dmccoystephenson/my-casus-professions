@@ -63,39 +63,39 @@ public final class NodeRemoveItemCommand implements CommandExecutor {
             nodeFuture = nodeService.getNode(nodeName);
         }
         nodeFuture.thenAccept((node) ->
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    if (node.isPresent()) {
-                        Node value = node.get();
-                        CompletableFuture<Optional<NodeItem>> nodeItemToRemoveFuture;
-                        if (args.length < 2) {
-                            ItemStack item = player.getInventory().getItemInMainHand();
-                            nodeItemToRemoveFuture = CompletableFuture.completedFuture(
-                                    value.getItems().stream().filter(nodeItem -> nodeItem.getItem().isSimilar(item)).findFirst()
-                            );
-                        } else {
-                            try {
-                                int nodeItemId = Integer.parseInt(args[1]);
-                                nodeItemToRemoveFuture = nodeService.getNodeItem(new NodeItemId(nodeItemId));
-                            } catch (NumberFormatException exception) {
-                                sender.sendMessage(INVALID_NODE_ITEM_ID);
-                                return;
-                            }
-                        }
-                        nodeItemToRemoveFuture.thenAccept((nodeItemToRemove) -> {
-                            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                                if (nodeItemToRemove.isPresent()) {
-                                    nodeService.removeNodeItem(nodeItemToRemove.get()).thenRun(() -> {
-                                        sender.sendMessage(itemRemoved(nodeItemToRemove.get().getItem(), value));
-                                    });
-                                } else {
-                                    sender.sendMessage(ITEM_NOT_PRESENT);
-                                }
-                            });
-                        });
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                if (node.isPresent()) {
+                    Node value = node.get();
+                    CompletableFuture<Optional<NodeItem>> nodeItemToRemoveFuture;
+                    if (args.length < 2) {
+                        ItemStack item = player.getInventory().getItemInMainHand();
+                        nodeItemToRemoveFuture = CompletableFuture.completedFuture(
+                                value.getItems().stream().filter(nodeItem -> nodeItem.getItem().isSimilar(item)).findFirst()
+                        );
                     } else {
-                        sender.sendMessage(NODE_INVALID);
+                        try {
+                            int nodeItemId = Integer.parseInt(args[1]);
+                            nodeItemToRemoveFuture = nodeService.getNodeItem(new NodeItemId(nodeItemId));
+                        } catch (NumberFormatException exception) {
+                            sender.sendMessage(INVALID_NODE_ITEM_ID);
+                            return;
+                        }
                     }
-                })
+                    nodeItemToRemoveFuture.thenAccept(nodeItemToRemove -> {
+                        plugin.getServer().getScheduler().runTask(plugin, () -> {
+                            if (nodeItemToRemove.isPresent()) {
+                                nodeService.removeNodeItem(nodeItemToRemove.get()).thenRun(() -> {
+                                    sender.sendMessage(itemRemoved(nodeItemToRemove.get().getItem(), value));
+                                });
+                            } else {
+                                sender.sendMessage(ITEM_NOT_PRESENT);
+                            }
+                        });
+                    });
+                } else {
+                    sender.sendMessage(NODE_INVALID);
+                }
+            })
         );
 
         return true;
