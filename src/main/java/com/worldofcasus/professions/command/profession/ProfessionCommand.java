@@ -17,11 +17,15 @@ public final class ProfessionCommand implements CommandExecutor {
     private final ProfessionCreateCommand professionCreateCommand;
     private final ProfessionSetCommand professionSetCommand;
     private final ProfessionListCommand professionListCommand;
+    private final ProfessionShowCommand professionShowCommand;
+    private final ProfessionResetCommand professionResetCommand;
 
     public ProfessionCommand(CasusProfessions plugin) {
         professionCreateCommand = new ProfessionCreateCommand(plugin);
         professionSetCommand = new ProfessionSetCommand(plugin);
         professionListCommand = new ProfessionListCommand(plugin);
+        professionShowCommand = new ProfessionShowCommand(plugin);
+        professionResetCommand = new ProfessionResetCommand(plugin);
     }
 
     @Override
@@ -35,6 +39,8 @@ public final class ProfessionCommand implements CommandExecutor {
             case "create": return professionCreateCommand.onCommand(sender, command, label, newArgs);
             case "set": return professionSetCommand.onCommand(sender, command, label, newArgs);
             case "list": return professionListCommand.onCommand(sender, command, label, newArgs);
+            case "show": return professionShowCommand.onCommand(sender, command, label, newArgs);
+            case "reset": return professionResetCommand.onCommand(sender, command, label, newArgs);
             default:
                 sender.sendMessage(USAGE_MESSAGE);
                 return true;

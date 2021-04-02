@@ -66,4 +66,13 @@ public final class CharacterProfessionTable implements Table {
                         .execute()
         );
     }
+
+    public CompletableFuture<Void> delete(RPKCharacter character) {
+        return CompletableFuture.runAsync(() ->
+                database.create()
+                        .deleteFrom(CHARACTER_PROFESSION)
+                        .where(CHARACTER_PROFESSION.CHARACTER_ID.eq(character.getId()))
+                        .execute()
+        );
+    }
 }

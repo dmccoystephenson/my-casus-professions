@@ -19,6 +19,7 @@ import static net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT;
 
 public final class NodeListCommand implements CommandExecutor {
 
+    private static final String NO_PERMISSION = RED + "You do not have permission to view the node list.";
     private static final String NODE_SERVICE_NOT_REGISTERED_ERROR = RED + "No node service registered.";
     private static final String NODE_LIST_TITLE = WHITE + "Nodes:";
 
@@ -30,6 +31,10 @@ public final class NodeListCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!sender.hasPermission("worldofcasus.professions.command.node.list")) {
+            sender.sendMessage(NO_PERMISSION);
+            return true;
+        }
         NodeService nodeService;
         try {
             nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);

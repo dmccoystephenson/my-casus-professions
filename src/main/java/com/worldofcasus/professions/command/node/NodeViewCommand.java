@@ -24,6 +24,7 @@ import static net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT;
 
 public final class NodeViewCommand implements CommandExecutor {
 
+    private static final String NO_PERMISSION = RED + "You do not have permission to view nodes.";
     private static final String USAGE_MESSAGE = RED + "Usage: /node view [node]";
     private static final String NODE_SERVICE_NOT_REGISTERED_ERROR = RED + "No node service registered.";
     private static final String INVALID_NODE = RED + "Could not find that node.";
@@ -36,6 +37,10 @@ public final class NodeViewCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!sender.hasPermission("worldofcasus.professions.command.node.view")) {
+            sender.sendMessage(NO_PERMISSION);
+            return true;
+        }
         if (args.length < 1) {
             sender.sendMessage(USAGE_MESSAGE);
             return true;

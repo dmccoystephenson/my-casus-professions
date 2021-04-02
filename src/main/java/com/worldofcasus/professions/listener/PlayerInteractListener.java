@@ -94,9 +94,6 @@ public final class PlayerInteractListener implements Listener {
         }
         CompletableFuture<Optional<Profession>> professionFuture = professionService.getProfession(character);
         professionFuture.thenAccept((profession) -> {
-            if (!profession.isPresent()) {
-                return;
-            }
             StaminaService staminaService;
             try {
                 staminaService = plugin.core.getServiceManager().getServiceProvider(StaminaService.class);
@@ -108,7 +105,7 @@ public final class PlayerInteractListener implements Listener {
                     staminaService,
                     player,
                     character,
-                    profession.get(),
+                    profession.orElse(null),
                     node,
                     block.getRelative(event.getBlockFace()).getLocation()
                 );
@@ -118,6 +115,10 @@ public final class PlayerInteractListener implements Listener {
     }
 
     private CompletableFuture<Void> harvest(StaminaService staminaService, Player player, RPKCharacter character, Profession profession, Node node, Location dropLocation) {
+        if (profession == null) {
+            player.sendMessage(noProfession(node.getRequiredProfession()));
+            return CompletableFuture.completedFuture(null);
+        }
         if (!node.getRequiredProfession().getId().equals(profession.getId())) {
             player.sendMessage(wrongProfession(node.getRequiredProfession(), profession));
             return CompletableFuture.completedFuture(null);
@@ -160,6 +161,10 @@ public final class PlayerInteractListener implements Listener {
 
     private String wrongProfession(Profession requiredProfession, Profession profession) {
         return RED + "This node requires you to be a " + requiredProfession.getName() + ", you are a " + profession.getName() + ".";
+    }
+
+    private String noProfession(Profession requiredProfession) {
+        return RED + "This node requires you to be a " + requiredProfession.getName() + ", you do not yet have a profession. Set one with /profession set [profession]";
     }
 
     private String itemDropped(ItemStack item) {
