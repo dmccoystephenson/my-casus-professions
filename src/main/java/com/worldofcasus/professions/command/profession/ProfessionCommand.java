@@ -12,7 +12,7 @@ import static org.bukkit.ChatColor.RED;
 
 public final class ProfessionCommand implements CommandExecutor {
 
-    private static final String USAGE_MESSAGE = RED + "Usage: /profession [create|set|list]";
+    private static final String USAGE_MESSAGE = RED + "Usage: /profession [create|set|list|show|reset]";
 
     private final ProfessionCreateCommand professionCreateCommand;
     private final ProfessionSetCommand professionSetCommand;
