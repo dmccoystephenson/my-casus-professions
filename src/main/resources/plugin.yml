@@ -26,7 +26,9 @@ commands:
       /profession create [name] - Creates the profession with the given name
       /profession set [profession] - Sets your profession (irreversible!)
       /profession list - Lists available professions
-    usage: /<command> [create|set|list]
+      /profession show (player) - Shows profession
+      /profession reset (player) - Resets profession
+    usage: /<command> [create|set|list|show|reset]
   stamina:
     description: |
       Views or sets stamina
@@ -49,8 +51,26 @@ permissions:
   worldofcasus.professions.command.node.reload:
     description: Reloads the node config
     default: op
+  worldofcasus.professions.command.node.list:
+    description: Allows listing nodes
+    default: op
+  worldofcasus.professions.command.node.view:
+    description: Allows viewing a node
+    default: op
   worldofcasus.professions.command.profession.create:
     description: Allows creating professions
+    default: op
+  worldofcasus.professions.command.profession.show:
+    description: Allows viewing your profession
+    default: true
+  worldofcasus.professions.command.profession.show.other:
+    description: Allows viewing the professions of other players
+    default: op
+  worldofcasus.professions.command.profession.reset:
+    description: Allows resetting your profession
+    default: op
+  worldofcasus.professions.command.profession.reset.other:
+    description: Allows resetting the professions of other players
     default: op
   worldofcasus.professions.command.stamina:
     description: Allows viewing stamina

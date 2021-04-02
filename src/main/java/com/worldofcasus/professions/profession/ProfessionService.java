@@ -42,4 +42,8 @@ public final class ProfessionService implements ServiceProvider {
         return plugin.getDatabase().getTable(CharacterProfessionTable.class).insertOrUpdate(character, profession);
     }
 
+    public CompletableFuture<Void> unsetProfession(RPKCharacter character) {
+        return plugin.getDatabase().getTable(CharacterProfessionTable.class).delete(character);
+    }
+
 }
