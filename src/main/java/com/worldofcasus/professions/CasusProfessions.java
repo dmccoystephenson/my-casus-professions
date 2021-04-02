@@ -3,6 +3,7 @@ package com.worldofcasus.professions;
 import com.rpkit.core.service.ServiceProvider;
 import com.worldofcasus.professions.command.node.NodeCommand;
 import com.worldofcasus.professions.command.profession.ProfessionCommand;
+import com.worldofcasus.professions.command.stamina.StaminaCommand;
 import com.worldofcasus.professions.database.Database;
 import com.worldofcasus.professions.listener.PlayerInteractListener;
 import com.worldofcasus.professions.node.NodeService;
@@ -30,15 +31,13 @@ public final class CasusProfessions extends RPKBukkitPlugin {
                 new ProfessionService(this)
         });
         new StaminaRestoreRunnable(this).runTaskTimer(this, 36000L, 72000L);
-        // These need to be called manually in 2.x
-        //registerCommands();
-        //registerListeners();
     }
 
     @Override
     public void registerCommands() {
         getCommand("node").setExecutor(new NodeCommand(this));
         getCommand("profession").setExecutor(new ProfessionCommand(this));
+        getCommand("stamina").setExecutor(new StaminaCommand(this));
     }
 
     @Override

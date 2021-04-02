@@ -26,22 +26,38 @@ commands:
       /profession create [name] - Creates the profession with the given name
       /profession set [profession] - Sets your profession (irreversible!)
       /profession list - Lists available professions
+    usage: /<command> [create|set|list]
+  stamina:
+    description: |
+      Views or sets stamina
+      /stamina (player) - Views current stamina
+      /stamina set [player] [amount] - Sets stamina
+    usage: /<command> (set|player)
 permissions:
-  professions.command.node.create:
+  worldofcasus.professions.command.node.create:
     description: Allows creating nodes
     default: op
-  professions.command.node.delete:
+  worldofcasus.professions.command.node.delete:
     description: Allows deleting nodes
     default: op
-  professions.command.node.additem:
+  worldofcasus.professions.command.node.additem:
     description: Allows adding items to nodes
     default: op
-  professions.command.node.removeitem:
+  worldofcasus.professions.command.node.removeitem:
     description: Allows removing items from nodes
     default: op
-  professions.command.node.reload:
+  worldofcasus.professions.command.node.reload:
     description: Reloads the node config
     default: op
-  professions.command.profession.create:
+  worldofcasus.professions.command.profession.create:
     description: Allows creating professions
+    default: op
+  worldofcasus.professions.command.stamina:
+    description: Allows viewing stamina
+    default: true
+  worldofcasus.professions.command.stamina.other:
+    description: Allows setting the stamina of other players
+    default: op
+  worldofcasus.professions.command.stamina.set:
+    description: Allows setting stamina
     default: op
