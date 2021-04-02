@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static org.bukkit.ChatColor.RED;
 
-public class NodeReloadCommand implements CommandExecutor {
+public final class NodeReloadCommand implements CommandExecutor {
 
     private static final String NO_PERMISSION = RED + "You do not have permission to reload the node harvesting config.";
 
