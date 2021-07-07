@@ -35,6 +35,9 @@ commands:
       /stamina (player) - Views current stamina
       /stamina set [player] [amount] - Sets stamina
     usage: /<command> (set|player)
+  dnditem:
+    description: Allows you to create DnD items
+    usage: /<command>
 permissions:
   worldofcasus.professions.command.node.create:
     description: Allows creating nodes
@@ -80,4 +83,7 @@ permissions:
     default: op
   worldofcasus.professions.command.stamina.set:
     description: Allows setting stamina
+    default: op
+  worldofcasus.professions.command.dnditem:
+    description: Allows spawning DnD items
     default: op

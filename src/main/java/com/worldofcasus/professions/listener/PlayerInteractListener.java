@@ -6,6 +6,8 @@ import com.rpkit.core.exception.UnregisteredServiceException;
 import com.rpkit.players.bukkit.profile.RPKMinecraftProfile;
 import com.rpkit.players.bukkit.profile.RPKMinecraftProfileProvider;
 import com.worldofcasus.professions.CasusProfessions;
+import com.worldofcasus.professions.item.CasusItemStack;
+import com.worldofcasus.professions.item.ItemService;
 import com.worldofcasus.professions.node.Node;
 import com.worldofcasus.professions.node.NodeItem;
 import com.worldofcasus.professions.node.NodeService;
@@ -13,6 +15,7 @@ import com.worldofcasus.professions.profession.Profession;
 import com.worldofcasus.professions.profession.ProfessionService;
 import com.worldofcasus.professions.stamina.StaminaService;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -47,6 +50,27 @@ public final class PlayerInteractListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+        handleItemInteraction(event);
+        handleNodeHarvest(event);
+    }
+
+    private void handleItemInteraction(PlayerInteractEvent event) {
+        ItemStack item = event.getItem();
+        if (item != null) {
+            ItemService itemService;
+            try {
+                itemService = plugin.core.getServiceManager().getServiceProvider(ItemService.class);
+            } catch (UnregisteredServiceException e) {
+                return;
+            }
+            CasusItemStack casusItemStack = itemService.fromBukkitItemStack(item);
+            if (casusItemStack != null) {
+                casusItemStack.getType().getInteraction().interact(event);
+            }
+        }
+    }
+
+    private void handleNodeHarvest(PlayerInteractEvent event) {
         if (event.getAction() != RIGHT_CLICK_BLOCK) {
             return;
         }
@@ -110,7 +134,6 @@ public final class PlayerInteractListener implements Listener {
                     block.getRelative(event.getBlockFace()).getLocation()
                 );
             }
-
         });
     }
 
@@ -148,7 +171,7 @@ public final class PlayerInteractListener implements Listener {
             if (chosenItem == null) return;
             final NodeItem finalChosenItem = chosenItem;
             staminaService.setStamina(ctx, character, stamina - harvestCost).join();
-            if (chosenItem.getItem().getType().isItem()) {
+            if (chosenItem.getItem().getType() != Material.AIR && chosenItem.getItem().getType().isItem()) {
                 player.sendMessage(itemDropped(finalChosenItem.getItem()));
                 plugin.getServer().getScheduler().runTask(plugin, () ->
                         player.getWorld().dropItemNaturally(dropLocation, finalChosenItem.getItem())

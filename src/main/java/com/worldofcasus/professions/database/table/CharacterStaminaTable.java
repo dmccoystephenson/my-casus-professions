@@ -96,17 +96,20 @@ public final class CharacterStaminaTable implements Table {
         return CompletableFuture.runAsync(() ->
                 database.create()
                         .update(CHARACTER_STAMINA)
-                        .set(CHARACTER_STAMINA.STAMINA, greatest(
-                                value(100).minus(
-                                        value(100).minus(CHARACTER_STAMINA.STAMINA).minus(
-                                                value(11).minus(
-                                                        value(100).minus(CHARACTER_STAMINA.STAMINA)
-                                                                .multiply(value(100).minus(CHARACTER_STAMINA.STAMINA))
-                                                                .divide(value(1000))
-                                                )
-                                        )
-                                ),
-                                value(0)
+                        .set(CHARACTER_STAMINA.STAMINA, least(
+                                value(100),
+                                greatest(
+                                    value(100).minus(
+                                            value(100).minus(CHARACTER_STAMINA.STAMINA).minus(
+                                                    value(11).minus(
+                                                            value(100).minus(CHARACTER_STAMINA.STAMINA)
+                                                                    .multiply(value(100).minus(CHARACTER_STAMINA.STAMINA))
+                                                                    .divide(value(1000))
+                                                    )
+                                            )
+                                    ),
+                                    value(0)
+                                )
                         ))
                         .where(CHARACTER_STAMINA.STAMINA.lt(MAX_STAMINA))
                         .execute()
