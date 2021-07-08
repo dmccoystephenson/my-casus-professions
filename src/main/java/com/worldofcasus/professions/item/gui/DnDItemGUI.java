@@ -175,7 +175,7 @@ public class DnDItemGUI extends GUI {
                 } else if (category instanceof GenericItemCategory) {
                     showOtherCategories(player);
                 }
-            } else if (slot >= 0 && slot < Math.min(45, itemTypes.size() - 1)) {
+            } else if (slot >= 0 && slot < Math.min(45, itemTypes.size())) {
                 CasusItemType itemType = itemTypes.get(slot);
                 if (event.isLeftClick()) {
                     player.setItemOnCursor(new CasusItemStack(itemType, itemType.toBukkitItemStack().getMaxStackSize()).toBukkitItemStack());

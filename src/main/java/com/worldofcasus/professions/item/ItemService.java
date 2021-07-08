@@ -347,6 +347,10 @@ public final class ItemService implements ServiceProvider {
         ));
         // Weapons
         File weaponFolder = new File(itemFolder, "weapons");
+        ItemMeta knuckleDusterMeta = Bukkit.getItemFactory().getItemMeta(WOODEN_SWORD);
+        if (knuckleDusterMeta != null) {
+            knuckleDusterMeta.setCustomModelData(100);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Knuckle Duster",
                 COMMON,
@@ -361,8 +365,13 @@ public final class ItemService implements ServiceProvider {
                         "Perfect for tavern brawls!"
                 ),
                 WOODEN_SWORD,
+                knuckleDusterMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta spikedClubMeta = Bukkit.getItemFactory().getItemMeta(WOODEN_SWORD);
+        if (spikedClubMeta != null) {
+            spikedClubMeta.setCustomModelData(111);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Spiked Club",
                 COMMON,
@@ -378,8 +387,13 @@ public final class ItemService implements ServiceProvider {
                         "word with these..."
                 ),
                 WOODEN_SWORD,
+                spikedClubMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta lightCrossbowMeta = Bukkit.getItemFactory().getItemMeta(CROSSBOW);
+        if (lightCrossbowMeta != null) {
+            lightCrossbowMeta.setCustomModelData(901);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Light Crossbow",
                 COMMON,
@@ -398,8 +412,13 @@ public final class ItemService implements ServiceProvider {
                         "mercenaries."
                 ),
                 CROSSBOW,
+                lightCrossbowMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta heavyCrossbowMeta = Bukkit.getItemFactory().getItemMeta(CROSSBOW);
+        if (heavyCrossbowMeta != null) {
+            heavyCrossbowMeta.setCustomModelData(900);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Heavy Crossbow",
                 COMMON,
@@ -418,8 +437,13 @@ public final class ItemService implements ServiceProvider {
                         "This bad boy can pierce even the toughest of armors."
                 ),
                 CROSSBOW,
+                heavyCrossbowMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta daggerMeta = Bukkit.getItemFactory().getItemMeta(WOODEN_SWORD);
+        if (daggerMeta != null) {
+            daggerMeta.setCustomModelData(104);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Dagger",
                 COMMON,
@@ -437,8 +461,13 @@ public final class ItemService implements ServiceProvider {
                         "The favorite weapon of the shady folk."
                 ),
                 WOODEN_SWORD,
+                daggerMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta handaxeMeta = Bukkit.getItemFactory().getItemMeta(WOODEN_AXE);
+        if (handaxeMeta != null) {
+            handaxeMeta.setCustomModelData(201);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Handaxe",
                 COMMON,
@@ -455,8 +484,13 @@ public final class ItemService implements ServiceProvider {
                         "The favorite weapon for raiders."
                 ),
                 WOODEN_AXE,
+                handaxeMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta javelinMeta = Bukkit.getItemFactory().getItemMeta(STONE_SWORD);
+        if (javelinMeta != null) {
+            javelinMeta.setCustomModelData(307);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Javelin",
                 COMMON,
@@ -473,8 +507,13 @@ public final class ItemService implements ServiceProvider {
                         "it!"
                 ),
                 STONE_SWORD,
+                javelinMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta lightHammerMeta = Bukkit.getItemFactory().getItemMeta(STONE_AXE);
+        if (lightHammerMeta != null) {
+            lightHammerMeta.setCustomModelData(402);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Light Hammer",
                 COMMON,
@@ -491,8 +530,13 @@ public final class ItemService implements ServiceProvider {
                         "Wait, you can throw these?"
                 ),
                 STONE_AXE,
+                lightHammerMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta maceMeta = Bukkit.getItemFactory().getItemMeta(STONE_AXE);
+        if (maceMeta != null) {
+            maceMeta.setCustomModelData(404);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Mace",
                 COMMON,
@@ -505,8 +549,13 @@ public final class ItemService implements ServiceProvider {
                         "Mace in yer face!"
                 ),
                 STONE_AXE,
+                maceMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta shortBowMeta = Bukkit.getItemFactory().getItemMeta(BOW);
+        if (shortBowMeta != null) {
+            shortBowMeta.setCustomModelData(802);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Shortbow",
                 COMMON,
@@ -523,8 +572,13 @@ public final class ItemService implements ServiceProvider {
                         "Usually used by poachers."
                 ),
                 BOW,
+                shortBowMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta longBowMeta = Bukkit.getItemFactory().getItemMeta(BOW);
+        if (longBowMeta != null) {
+            longBowMeta.setCustomModelData(800);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Longbow",
                 COMMON,
@@ -543,8 +597,13 @@ public final class ItemService implements ServiceProvider {
                         "with this bad boy."
                 ),
                 BOW,
+                longBowMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta shortswordMeta = Bukkit.getItemFactory().getItemMeta(STONE_SWORD);
+        if (shortswordMeta != null) {
+            shortswordMeta.setCustomModelData(300);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Shortsword",
                 COMMON,
@@ -560,8 +619,13 @@ public final class ItemService implements ServiceProvider {
                         "These are personal favorites for thieves."
                 ),
                 STONE_SWORD,
+                shortswordMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta scimitarMeta = Bukkit.getItemFactory().getItemMeta(STONE_SWORD);
+        if (scimitarMeta != null) {
+            scimitarMeta.setCustomModelData(304);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Scimitar",
                 COMMON,
@@ -577,8 +641,13 @@ public final class ItemService implements ServiceProvider {
                         "These are personal favorites for thieves."
                 ),
                 STONE_SWORD,
+                scimitarMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta longswordMeta = Bukkit.getItemFactory().getItemMeta(STONE_SWORD);
+        if (longswordMeta != null) {
+            longswordMeta.setCustomModelData(302);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Longsword",
                 COMMON,
@@ -593,6 +662,7 @@ public final class ItemService implements ServiceProvider {
                         "The favorite weapon of a knight."
                 ),
                 STONE_SWORD,
+                longswordMeta,
                 new BlockedInteraction()
         ));
         saveItem(weaponFolder, new WeaponType(
@@ -609,6 +679,10 @@ public final class ItemService implements ServiceProvider {
                 DIAMOND_HOE,
                 new BlockedInteraction()
         ));
+        ItemMeta rapierMeta = Bukkit.getItemFactory().getItemMeta(WOODEN_SWORD);
+        if (rapierMeta != null) {
+            rapierMeta.setCustomModelData(105);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Rapier",
                 COMMON,
@@ -623,8 +697,13 @@ public final class ItemService implements ServiceProvider {
                         "Touché!"
                 ),
                 WOODEN_SWORD,
+                rapierMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta handCrossbowMeta = Bukkit.getItemFactory().getItemMeta(CROSSBOW);
+        if (handCrossbowMeta != null) {
+            handCrossbowMeta.setCustomModelData(902);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Hand Crossbow",
                 COMMON,
@@ -642,8 +721,13 @@ public final class ItemService implements ServiceProvider {
                         "Will surely come in handy..."
                 ),
                 CROSSBOW,
+                handCrossbowMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta quarterstaffMeta = Bukkit.getItemFactory().getItemMeta(STONE_SWORD);
+        if (quarterstaffMeta != null) {
+            quarterstaffMeta.setCustomModelData(308);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Quarterstaff",
                 COMMON,
@@ -658,8 +742,13 @@ public final class ItemService implements ServiceProvider {
                         "It's not just a \"walking stick\", Gandalf..."
                 ),
                 STONE_SWORD,
+                quarterstaffMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta boStaffMeta = Bukkit.getItemFactory().getItemMeta(STONE_SWORD);
+        if (boStaffMeta != null) {
+            boStaffMeta.setCustomModelData(308);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Bo Staff",
                 COMMON,
@@ -674,8 +763,13 @@ public final class ItemService implements ServiceProvider {
                         ChatColor.STRIKETHROUGH + "YOU SHALL NOT PASS" + ChatColor.RESET + "Shoot, wrong franchise."
                 ),
                 STONE_SWORD,
+                boStaffMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta whipMeta = Bukkit.getItemFactory().getItemMeta(WOODEN_SWORD);
+        if (whipMeta != null) {
+            whipMeta.setCustomModelData(106);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Whip",
                 COMMON,
@@ -691,8 +785,13 @@ public final class ItemService implements ServiceProvider {
                         "Now watch me whip..."
                 ),
                 WOODEN_SWORD,
+                whipMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta warhammerMeta = Bukkit.getItemFactory().getItemMeta(STONE_AXE);
+        if (warhammerMeta != null) {
+            warhammerMeta.setCustomModelData(403);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Warhammer",
                 COMMON,
@@ -707,8 +806,13 @@ public final class ItemService implements ServiceProvider {
                         "Perfect for flattening heads!"
                 ),
                 STONE_AXE,
+                warhammerMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta sickleMeta = Bukkit.getItemFactory().getItemMeta(STONE_SWORD);
+        if (sickleMeta != null) {
+            sickleMeta.setCustomModelData(301);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Sickle",
                 COMMON,
@@ -723,8 +827,13 @@ public final class ItemService implements ServiceProvider {
                         "Usually used to harvest wheat... usually."
                 ),
                 STONE_SWORD,
+                sickleMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta morningstarMeta = Bukkit.getItemFactory().getItemMeta(BOW);
+        if (morningstarMeta != null) {
+            morningstarMeta.setCustomModelData(405);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Morningstar",
                 COMMON,
@@ -737,8 +846,13 @@ public final class ItemService implements ServiceProvider {
                         "It's always a good morning with one of these babies in your hand!"
                 ),
                 STONE_AXE,
+                morningstarMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta slingshotMeta = Bukkit.getItemFactory().getItemMeta(WOODEN_SWORD);
+        if (slingshotMeta != null) {
+            slingshotMeta.setCustomModelData(112);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Slingshot",
                 COMMON,
@@ -754,8 +868,13 @@ public final class ItemService implements ServiceProvider {
                         "Used by town kids to break glass windows."
                 ),
                 WOODEN_SWORD,
+                slingshotMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta yklwaMeta = Bukkit.getItemFactory().getItemMeta(STONE_SWORD);
+        if (yklwaMeta != null) {
+            yklwaMeta.setCustomModelData(312);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Yklwa",
                 COMMON,
@@ -771,8 +890,13 @@ public final class ItemService implements ServiceProvider {
                         "This odd design for a weapon can be thrown, but is not fit for it"
                 ),
                 STONE_SWORD,
+                yklwaMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta battleaxeMeta = Bukkit.getItemFactory().getItemMeta(STONE_SWORD);
+        if (battleaxeMeta != null) {
+            battleaxeMeta.setCustomModelData(400);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Battleaxe",
                 COMMON,
@@ -787,8 +911,13 @@ public final class ItemService implements ServiceProvider {
                         "Orks love this weapon!"
                 ),
                 STONE_SWORD,
+                battleaxeMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta halberdMeta = Bukkit.getItemFactory().getItemMeta(IRON_SWORD);
+        if (halberdMeta != null) {
+            halberdMeta.setCustomModelData(504);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Halberd",
                 COMMON,
@@ -805,8 +934,13 @@ public final class ItemService implements ServiceProvider {
                         "Poke or swing with it, it's great for both!"
                 ),
                 IRON_SWORD,
+                halberdMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta pikeMeta = Bukkit.getItemFactory().getItemMeta(IRON_SWORD);
+        if (pikeMeta != null) {
+            pikeMeta.setCustomModelData(508);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Pike",
                 COMMON,
@@ -823,8 +957,13 @@ public final class ItemService implements ServiceProvider {
                         "Pikes are perfect to keep the enemy at bay"
                 ),
                 IRON_SWORD,
+                pikeMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta lanceMeta = Bukkit.getItemFactory().getItemMeta(IRON_SWORD);
+        if (lanceMeta != null) {
+            lanceMeta.setCustomModelData(514);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Lance",
                 COMMON,
@@ -844,8 +983,13 @@ public final class ItemService implements ServiceProvider {
                         "damage roll."
                 ),
                 IRON_SWORD,
+                lanceMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta spearMeta = Bukkit.getItemFactory().getItemMeta(IRON_SWORD);
+        if (spearMeta != null) {
+            spearMeta.setCustomModelData(502);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Spear",
                 COMMON,
@@ -862,8 +1006,13 @@ public final class ItemService implements ServiceProvider {
                         "A good weapon to have against most foes."
                 ),
                 IRON_SWORD,
+                spearMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta maulMeta = Bukkit.getItemFactory().getItemMeta(IRON_AXE);
+        if (maulMeta != null) {
+            maulMeta.setCustomModelData(603);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Maul",
                 COMMON,
@@ -878,9 +1027,14 @@ public final class ItemService implements ServiceProvider {
                 Arrays.asList(
                     "Dwarves love this weapon, great for busting kneecaps."
                 ),
-                IRON_SWORD,
+                IRON_AXE,
+                maulMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta greatswordMeta = Bukkit.getItemFactory().getItemMeta(IRON_SWORD);
+        if (greatswordMeta != null) {
+            greatswordMeta.setCustomModelData(500);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Greatsword",
                 COMMON,
@@ -896,8 +1050,13 @@ public final class ItemService implements ServiceProvider {
                         "So sharp you could probably cleave someone in half..."
                 ),
                 IRON_SWORD,
+                greatswordMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta greataxeMeta = Bukkit.getItemFactory().getItemMeta(IRON_AXE);
+        if (greataxeMeta != null) {
+            greataxeMeta.setCustomModelData(601);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Greataxe",
                 COMMON,
@@ -913,8 +1072,13 @@ public final class ItemService implements ServiceProvider {
                         "This massive axe is great for chopping body parts."
                 ),
                 IRON_AXE,
+                greataxeMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta glaiveMeta = Bukkit.getItemFactory().getItemMeta(IRON_AXE);
+        if (glaiveMeta != null) {
+            glaiveMeta.setCustomModelData(605);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Glaive",
                 COMMON,
@@ -931,8 +1095,13 @@ public final class ItemService implements ServiceProvider {
                         "Swingity swungity... you're dead!"
                 ),
                 IRON_AXE,
+                glaiveMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta greatBattlehammerMeta = Bukkit.getItemFactory().getItemMeta(IRON_AXE);
+        if (greatBattlehammerMeta != null) {
+            greatBattlehammerMeta.setCustomModelData(602);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Great Battlehammer",
                 UNCOMMON,
@@ -947,8 +1116,13 @@ public final class ItemService implements ServiceProvider {
                         "A MASSIVE hammer... what more do ya need?"
                 ),
                 IRON_AXE,
+                greatBattlehammerMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta dwarvenGreatswordMeta = Bukkit.getItemFactory().getItemMeta(IRON_SWORD);
+        if (dwarvenGreatswordMeta != null) {
+            dwarvenGreatswordMeta.setCustomModelData(513);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Dwarven Greatsword",
                 UNCOMMON,
@@ -965,8 +1139,13 @@ public final class ItemService implements ServiceProvider {
                         "average human."
                 ),
                 IRON_SWORD,
+                dwarvenGreatswordMeta,
                 new BlockedInteraction()
         ));
+        ItemMeta jadeDaggerMeta = Bukkit.getItemFactory().getItemMeta(WOODEN_SWORD);
+        if (jadeDaggerMeta != null) {
+            jadeDaggerMeta.setCustomModelData(104);
+        }
         saveItem(weaponFolder, new WeaponType(
                 "Jade Dagger",
                 RARE,
@@ -985,6 +1164,7 @@ public final class ItemService implements ServiceProvider {
                         "Misses every hit."
                 ),
                 WOODEN_SWORD,
+                jadeDaggerMeta,
                 new BlockedInteraction()
         ));
         // Adventuring gear
