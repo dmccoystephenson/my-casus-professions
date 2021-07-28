@@ -1,7 +1,7 @@
 package com.worldofcasus.professions;
 
 import com.rpkit.core.bukkit.plugin.RPKBukkitPlugin;
-import com.rpkit.core.service.ServiceProvider;
+import com.rpkit.core.service.Services;
 import com.worldofcasus.professions.ability.AbilityRequirement;
 import com.worldofcasus.professions.ability.StrengthRequirement;
 import com.worldofcasus.professions.armorclass.ArmorClassCalculation;
@@ -84,28 +84,28 @@ public final class CasusProfessions extends RPKBukkitPlugin {
                 getConfig().getString("database.username"),
                 getConfig().getString("database.password")
         );
-        setServiceProviders(new ServiceProvider[] {
-                new StaminaService(this),
-                new NodeService(this),
-                new ProfessionService(this),
-                new ItemService(this)
-        });
+
+        Services.INSTANCE.set(StaminaService.class, new StaminaService(this));
+        Services.INSTANCE.set(NodeService.class, new NodeService(this));
+        Services.INSTANCE.set(ProfessionService.class, new ProfessionService(this));
+        Services.INSTANCE.set(ItemService.class, new ItemService(this));
 
         getServer().clearRecipes();
 
-        new StaminaRestoreRunnable(this).runTaskTimer(this, 36000L, 72000L);
+        new StaminaRestoreRunnable().runTaskTimer(this, 36000L, 72000L);
+
+        registerCommands();
+        registerListeners();
     }
 
-    @Override
-    public void registerCommands() {
+    private void registerCommands() {
         getCommand("node").setExecutor(new NodeCommand(this));
         getCommand("profession").setExecutor(new ProfessionCommand(this));
         getCommand("stamina").setExecutor(new StaminaCommand(this));
         getCommand("dnditem").setExecutor(new DnDItemCommand(this));
     }
 
-    @Override
-    public void registerListeners() {
+    private void registerListeners() {
         registerListeners(new PlayerInteractListener(this), new InventoryClickListener());
     }
 

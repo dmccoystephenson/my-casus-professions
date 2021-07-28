@@ -1,7 +1,6 @@
 package com.worldofcasus.professions.command.node;
 
-import com.rpkit.core.exception.UnregisteredServiceException;
-import com.worldofcasus.professions.CasusProfessions;
+import com.rpkit.core.service.Services;
 import com.worldofcasus.professions.node.NodeService;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -23,22 +22,14 @@ public final class NodeListCommand implements CommandExecutor {
     private static final String NODE_SERVICE_NOT_REGISTERED_ERROR = RED + "No node service registered.";
     private static final String NODE_LIST_TITLE = WHITE + "Nodes:";
 
-    private final CasusProfessions plugin;
-
-    public NodeListCommand(CasusProfessions plugin) {
-        this.plugin = plugin;
-    }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("worldofcasus.professions.command.node.list")) {
             sender.sendMessage(NO_PERMISSION);
             return true;
         }
-        NodeService nodeService;
-        try {
-            nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
-        } catch (UnregisteredServiceException e) {
+        NodeService nodeService = Services.INSTANCE.get(NodeService.class);
+        if (nodeService == null) {
             sender.sendMessage(NODE_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }

@@ -1,6 +1,6 @@
 package com.worldofcasus.professions.item.gui;
 
-import com.rpkit.core.exception.UnregisteredServiceException;
+import com.rpkit.core.service.Services;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.gui.GUI;
 import com.worldofcasus.professions.item.CasusItemStack;
@@ -89,10 +89,8 @@ public class DnDItemGUI extends GUI {
         this.page = page;
         getInventory().clear();
         getInventory().setItem(45, createOption(Material.RED_WOOL, "Back", "Click to go back"));
-        ItemService itemService;
-        try {
-            itemService = plugin.core.getServiceManager().getServiceProvider(ItemService.class);
-        } catch (UnregisteredServiceException exception) {
+        ItemService itemService = Services.INSTANCE.get(ItemService.class);
+        if (itemService == null) {
             return;
         }
         List<CasusItemType> itemTypes = itemService.getItemTypes(itemType -> itemType.getCategory() == category);
@@ -152,10 +150,8 @@ public class DnDItemGUI extends GUI {
                 initializeItems(player);
             }
         } else if (state == State.TYPE_SELECTION) {
-            ItemService itemService;
-            try {
-                itemService = plugin.core.getServiceManager().getServiceProvider(ItemService.class);
-            } catch (UnregisteredServiceException exception) {
+            ItemService itemService = Services.INSTANCE.get(ItemService.class);
+            if (itemService == null) {
                 return;
             }
             List<CasusItemType> itemTypes = itemService.getItemTypes(itemType -> itemType.getCategory() == category)

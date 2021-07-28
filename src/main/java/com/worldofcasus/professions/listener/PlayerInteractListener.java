@@ -1,10 +1,10 @@
 package com.worldofcasus.professions.listener;
 
 import com.rpkit.characters.bukkit.character.RPKCharacter;
-import com.rpkit.characters.bukkit.character.RPKCharacterProvider;
-import com.rpkit.core.exception.UnregisteredServiceException;
-import com.rpkit.players.bukkit.profile.RPKMinecraftProfile;
-import com.rpkit.players.bukkit.profile.RPKMinecraftProfileProvider;
+import com.rpkit.characters.bukkit.character.RPKCharacterService;
+import com.rpkit.core.service.Services;
+import com.rpkit.players.bukkit.profile.minecraft.RPKMinecraftProfile;
+import com.rpkit.players.bukkit.profile.minecraft.RPKMinecraftProfileService;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.item.CasusItemStack;
 import com.worldofcasus.professions.item.ItemService;
@@ -57,10 +57,8 @@ public final class PlayerInteractListener implements Listener {
     private void handleItemInteraction(PlayerInteractEvent event) {
         ItemStack item = event.getItem();
         if (item != null) {
-            ItemService itemService;
-            try {
-                itemService = plugin.core.getServiceManager().getServiceProvider(ItemService.class);
-            } catch (UnregisteredServiceException e) {
+            ItemService itemService = Services.INSTANCE.get(ItemService.class);
+            if (itemService == null) {
                 return;
             }
             CasusItemStack casusItemStack = itemService.fromBukkitItemStack(item);
@@ -79,37 +77,29 @@ public final class PlayerInteractListener implements Listener {
         }
         Block block = event.getClickedBlock();
         if (block == null) return;
-        ProfessionService professionService;
-        try {
-            professionService = plugin.core.getServiceManager().getServiceProvider(ProfessionService.class);
-        } catch (UnregisteredServiceException e) {
+        ProfessionService professionService = Services.INSTANCE.get(ProfessionService.class);
+        if (professionService == null) {
             return;
         }
-        RPKMinecraftProfileProvider minecraftProfileService;
-        try {
-            minecraftProfileService = plugin.core.getServiceManager().getServiceProvider(RPKMinecraftProfileProvider.class);
-        } catch (UnregisteredServiceException e) {
+        RPKMinecraftProfileService minecraftProfileService = Services.INSTANCE.get(RPKMinecraftProfileService.class);
+        if (minecraftProfileService == null) {
             return;
         }
         Player player = event.getPlayer();
-        RPKMinecraftProfile minecraftProfile = minecraftProfileService.getMinecraftProfile(player);
+        RPKMinecraftProfile minecraftProfile = minecraftProfileService.getPreloadedMinecraftProfile(player);
         if (minecraftProfile == null) {
             return;
         }
-        RPKCharacterProvider characterService;
-        try {
-            characterService = plugin.core.getServiceManager().getServiceProvider(RPKCharacterProvider.class);
-        } catch (UnregisteredServiceException e) {
+        RPKCharacterService characterService = Services.INSTANCE.get(RPKCharacterService.class);
+        if (characterService == null) {
             return;
         }
-        RPKCharacter character = characterService.getActiveCharacter(minecraftProfile);
+        RPKCharacter character = characterService.getPreloadedActiveCharacter(minecraftProfile);
         if (character == null) {
             return;
         }
-        NodeService nodeService;
-        try {
-            nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
-        } catch (UnregisteredServiceException e) {
+        NodeService nodeService = Services.INSTANCE.get(NodeService.class);
+        if (nodeService == null) {
             return;
         }
         List<Node> nodes = nodeService.getNodesAt(event.getClickedBlock().getLocation());
@@ -118,10 +108,8 @@ public final class PlayerInteractListener implements Listener {
         }
         CompletableFuture<Optional<Profession>> professionFuture = professionService.getProfession(character);
         professionFuture.thenAccept((profession) -> {
-            StaminaService staminaService;
-            try {
-                staminaService = plugin.core.getServiceManager().getServiceProvider(StaminaService.class);
-            } catch (UnregisteredServiceException e) {
+            StaminaService staminaService = Services.INSTANCE.get(StaminaService.class);
+            if (staminaService == null) {
                 return;
             }
             for (Node node : nodes) {

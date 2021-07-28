@@ -23,12 +23,12 @@ public final class NodeCommand implements CommandExecutor {
     private final NodeReloadCommand nodeReloadCommand;
 
     public NodeCommand(CasusProfessions plugin) {
-        nodeCreateCommand = new NodeCreateCommand(plugin);
+        nodeCreateCommand = new NodeCreateCommand();
         nodeDeleteCommand = new NodeDeleteCommand(plugin);
         nodeViewCommand = new NodeViewCommand(plugin);
         nodeAddItemCommand = new NodeAddItemCommand(plugin);
         nodeRemoveItemCommand = new NodeRemoveItemCommand(plugin);
-        nodeListCommand = new NodeListCommand(plugin);
+        nodeListCommand = new NodeListCommand();
         nodeReloadCommand = new NodeReloadCommand(plugin);
     }
 

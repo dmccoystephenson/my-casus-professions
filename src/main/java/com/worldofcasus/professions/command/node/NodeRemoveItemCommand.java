@@ -1,6 +1,6 @@
 package com.worldofcasus.professions.command.node;
 
-import com.rpkit.core.exception.UnregisteredServiceException;
+import com.rpkit.core.service.Services;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.node.*;
 import org.bukkit.command.Command;
@@ -47,10 +47,8 @@ public final class NodeRemoveItemCommand implements CommandExecutor {
             return true;
         }
         Player player = (Player) sender;
-        NodeService nodeService;
-        try {
-            nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
-        } catch (UnregisteredServiceException e) {
+        NodeService nodeService = Services.INSTANCE.get(NodeService.class);
+        if (nodeService == null) {
             sender.sendMessage(NODE_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }

@@ -1,10 +1,10 @@
 package com.worldofcasus.professions.command.profession;
 
 import com.rpkit.characters.bukkit.character.RPKCharacter;
-import com.rpkit.characters.bukkit.character.RPKCharacterProvider;
-import com.rpkit.core.exception.UnregisteredServiceException;
-import com.rpkit.players.bukkit.profile.RPKMinecraftProfile;
-import com.rpkit.players.bukkit.profile.RPKMinecraftProfileProvider;
+import com.rpkit.characters.bukkit.character.RPKCharacterService;
+import com.rpkit.core.service.Services;
+import com.rpkit.players.bukkit.profile.minecraft.RPKMinecraftProfile;
+import com.rpkit.players.bukkit.profile.minecraft.RPKMinecraftProfileService;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.profession.Profession;
 import com.worldofcasus.professions.profession.ProfessionService;
@@ -44,10 +44,8 @@ public final class ProfessionSetCommand implements CommandExecutor {
             return true;
         }
         String professionName = args[0];
-        ProfessionService professionService;
-        try {
-            professionService = plugin.core.getServiceManager().getServiceProvider(ProfessionService.class);
-        } catch (UnregisteredServiceException e) {
+        ProfessionService professionService = Services.INSTANCE.get(ProfessionService.class);
+        if (professionService == null) {
             sender.sendMessage(PROFESSION_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }
@@ -55,27 +53,23 @@ public final class ProfessionSetCommand implements CommandExecutor {
             sender.sendMessage(MUST_BE_A_PLAYER);
             return true;
         }
-        RPKMinecraftProfileProvider minecraftProfileService;
-        try {
-            minecraftProfileService = plugin.core.getServiceManager().getServiceProvider(RPKMinecraftProfileProvider.class);
-        } catch (UnregisteredServiceException e) {
+        RPKMinecraftProfileService minecraftProfileService = Services.INSTANCE.get(RPKMinecraftProfileService.class);
+        if (minecraftProfileService == null) {
             sender.sendMessage(MINECRAFT_PROFILE_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }
         Player player = (Player) sender;
-        RPKMinecraftProfile minecraftProfile = minecraftProfileService.getMinecraftProfile(player);
+        RPKMinecraftProfile minecraftProfile = minecraftProfileService.getPreloadedMinecraftProfile(player);
         if (minecraftProfile == null) {
             sender.sendMessage(NO_MINECRAFT_PROFILE);
             return true;
         }
-        RPKCharacterProvider characterService;
-        try {
-            characterService = plugin.core.getServiceManager().getServiceProvider(RPKCharacterProvider.class);
-        } catch (UnregisteredServiceException e) {
+        RPKCharacterService characterService = Services.INSTANCE.get(RPKCharacterService.class);
+        if (characterService == null) {
             sender.sendMessage(CHARACTER_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }
-        RPKCharacter character = characterService.getActiveCharacter(minecraftProfile);
+        RPKCharacter character = characterService.getPreloadedActiveCharacter(minecraftProfile);
         if (character == null) {
             sender.sendMessage(NO_CHARACTER);
             return true;

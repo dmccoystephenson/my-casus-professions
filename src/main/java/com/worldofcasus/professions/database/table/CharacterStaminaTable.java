@@ -38,11 +38,11 @@ public final class CharacterStaminaTable implements Table {
         return CompletableFuture.runAsync(() ->
                 database.create()
                         .insertInto(CHARACTER_STAMINA)
-                        .set(CHARACTER_STAMINA.CHARACTER_ID, character.getId())
+                        .set(CHARACTER_STAMINA.CHARACTER_ID, character.getId().getValue())
                         .set(CHARACTER_STAMINA.STAMINA, stamina)
                         .onDuplicateKeyUpdate()
                         .set(CHARACTER_STAMINA.STAMINA, stamina)
-                        .where(CHARACTER_STAMINA.CHARACTER_ID.eq(character.getId()))
+                        .where(CHARACTER_STAMINA.CHARACTER_ID.eq(character.getId().getValue()))
                         .execute()
         );
     }
@@ -50,11 +50,11 @@ public final class CharacterStaminaTable implements Table {
     public CompletableFuture<Void> insertOrUpdate(DSLContext ctx, RPKCharacter character, int stamina) {
         return CompletableFuture.runAsync(() -> {
             ctx.insertInto(CHARACTER_STAMINA)
-                    .set(CHARACTER_STAMINA.CHARACTER_ID, character.getId())
+                    .set(CHARACTER_STAMINA.CHARACTER_ID, character.getId().getValue())
                     .set(CHARACTER_STAMINA.STAMINA, stamina)
                     .onDuplicateKeyUpdate()
                     .set(CHARACTER_STAMINA.STAMINA, stamina)
-                    .where(CHARACTER_STAMINA.CHARACTER_ID.eq(character.getId()))
+                    .where(CHARACTER_STAMINA.CHARACTER_ID.eq(character.getId().getValue()))
                     .execute();
         });
     }
@@ -64,7 +64,7 @@ public final class CharacterStaminaTable implements Table {
             Record result = database.create()
                     .select(CHARACTER_STAMINA.STAMINA)
                     .from(CHARACTER_STAMINA)
-                    .where(CHARACTER_STAMINA.CHARACTER_ID.eq(character.getId()))
+                    .where(CHARACTER_STAMINA.CHARACTER_ID.eq(character.getId().getValue()))
                     .fetchOne();
             if (result == null) return Optional.empty();
             return Optional.of(result.get(CHARACTER_STAMINA.STAMINA));
@@ -76,7 +76,7 @@ public final class CharacterStaminaTable implements Table {
             database.create().transaction(config -> {
                 Record result = database.using(config).select(CHARACTER_STAMINA.STAMINA)
                         .from(CHARACTER_STAMINA)
-                        .where(CHARACTER_STAMINA.CHARACTER_ID.eq(character.getId()))
+                        .where(CHARACTER_STAMINA.CHARACTER_ID.eq(character.getId().getValue()))
                         .forUpdate()
                         .fetchOne();
                 if (result != null) {

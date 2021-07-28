@@ -1,6 +1,6 @@
 package com.worldofcasus.professions.command.profession;
 
-import com.rpkit.core.exception.UnregisteredServiceException;
+import com.rpkit.core.service.Services;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.profession.Profession;
 import com.worldofcasus.professions.profession.ProfessionService;
@@ -25,10 +25,8 @@ public final class ProfessionListCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        ProfessionService professionService;
-        try {
-            professionService = plugin.core.getServiceManager().getServiceProvider(ProfessionService.class);
-        } catch (UnregisteredServiceException e) {
+        ProfessionService professionService = Services.INSTANCE.get(ProfessionService.class);
+        if (professionService == null) {
             sender.sendMessage(PROFESSION_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }

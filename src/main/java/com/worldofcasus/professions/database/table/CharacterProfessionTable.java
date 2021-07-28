@@ -39,7 +39,7 @@ public final class CharacterProfessionTable implements Table {
             Record result = database.create()
                     .select(CHARACTER_PROFESSION.PROFESSION_ID)
                     .from(CHARACTER_PROFESSION)
-                    .where(CHARACTER_PROFESSION.CHARACTER_ID.eq(character.getId()))
+                    .where(CHARACTER_PROFESSION.CHARACTER_ID.eq(character.getId().getValue()))
                     .fetchOne();
             if (result == null) return Optional.empty();
             ProfessionId professionId = new ProfessionId(result.get(CHARACTER_PROFESSION.PROFESSION_ID));
@@ -57,12 +57,12 @@ public final class CharacterProfessionTable implements Table {
                                 CHARACTER_PROFESSION.PROFESSION_ID
                         )
                         .values(
-                                character.getId(),
+                                character.getId().getValue(),
                                 profession.getId().getValue()
                         )
                         .onDuplicateKeyUpdate()
                         .set(CHARACTER_PROFESSION.PROFESSION_ID, profession.getId().getValue())
-                        .where(CHARACTER_PROFESSION.CHARACTER_ID.eq(character.getId()))
+                        .where(CHARACTER_PROFESSION.CHARACTER_ID.eq(character.getId().getValue()))
                         .execute()
         );
     }
@@ -71,7 +71,7 @@ public final class CharacterProfessionTable implements Table {
         return CompletableFuture.runAsync(() ->
                 database.create()
                         .deleteFrom(CHARACTER_PROFESSION)
-                        .where(CHARACTER_PROFESSION.CHARACTER_ID.eq(character.getId()))
+                        .where(CHARACTER_PROFESSION.CHARACTER_ID.eq(character.getId().getValue()))
                         .execute()
         );
     }

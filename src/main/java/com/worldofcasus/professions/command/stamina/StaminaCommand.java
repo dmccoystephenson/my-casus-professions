@@ -1,10 +1,10 @@
 package com.worldofcasus.professions.command.stamina;
 
 import com.rpkit.characters.bukkit.character.RPKCharacter;
-import com.rpkit.characters.bukkit.character.RPKCharacterProvider;
-import com.rpkit.core.exception.UnregisteredServiceException;
-import com.rpkit.players.bukkit.profile.RPKMinecraftProfile;
-import com.rpkit.players.bukkit.profile.RPKMinecraftProfileProvider;
+import com.rpkit.characters.bukkit.character.RPKCharacterService;
+import com.rpkit.core.service.Services;
+import com.rpkit.players.bukkit.profile.minecraft.RPKMinecraftProfile;
+import com.rpkit.players.bukkit.profile.minecraft.RPKMinecraftProfileService;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.stamina.StaminaService;
 import org.bukkit.command.Command;
@@ -70,14 +70,12 @@ public final class StaminaCommand implements CommandExecutor {
     }
 
     private void displayStamina(CommandSender sender, Player target) {
-        RPKMinecraftProfileProvider minecraftProfileService;
-        try {
-            minecraftProfileService = plugin.core.getServiceManager().getServiceProvider(RPKMinecraftProfileProvider.class);
-        } catch (UnregisteredServiceException exception) {
+        RPKMinecraftProfileService minecraftProfileService = Services.INSTANCE.get(RPKMinecraftProfileService.class);
+        if (minecraftProfileService == null) {
             sender.sendMessage(NO_MINECRAFT_PROFILE_SERVICE);
             return;
         }
-        RPKMinecraftProfile minecraftProfile = minecraftProfileService.getMinecraftProfile(target);
+        RPKMinecraftProfile minecraftProfile = minecraftProfileService.getPreloadedMinecraftProfile(target);
         if (minecraftProfile == null) {
             if (sender == target) {
                 sender.sendMessage(NO_MINECRAFT_PROFILE_SELF);
@@ -86,14 +84,12 @@ public final class StaminaCommand implements CommandExecutor {
             }
             return;
         }
-        RPKCharacterProvider characterService;
-        try {
-            characterService = plugin.core.getServiceManager().getServiceProvider(RPKCharacterProvider.class);
-        } catch (UnregisteredServiceException exception) {
+        RPKCharacterService characterService = Services.INSTANCE.get(RPKCharacterService.class);
+        if (characterService == null) {
             sender.sendMessage(NO_CHARACTER_SERVICE);
             return;
         }
-        RPKCharacter character = characterService.getActiveCharacter(minecraftProfile);
+        RPKCharacter character = characterService.getPreloadedActiveCharacter(minecraftProfile);
         if (character == null) {
             if (sender == target) {
                 sender.sendMessage(NO_CHARACTER_SELF);
@@ -102,10 +98,8 @@ public final class StaminaCommand implements CommandExecutor {
             }
             return;
         }
-        StaminaService staminaService;
-        try {
-            staminaService = plugin.core.getServiceManager().getServiceProvider(StaminaService.class);
-        } catch (UnregisteredServiceException exception) {
+        StaminaService staminaService = Services.INSTANCE.get(StaminaService.class);
+        if (staminaService == null) {
             sender.sendMessage(NO_STAMINA_SERVICE);
             return;
         }

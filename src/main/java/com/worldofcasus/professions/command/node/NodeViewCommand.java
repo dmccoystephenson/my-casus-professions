@@ -1,6 +1,6 @@
 package com.worldofcasus.professions.command.node;
 
-import com.rpkit.core.exception.UnregisteredServiceException;
+import com.rpkit.core.service.Services;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.node.Node;
 import com.worldofcasus.professions.node.NodeId;
@@ -45,10 +45,8 @@ public final class NodeViewCommand implements CommandExecutor {
             sender.sendMessage(USAGE_MESSAGE);
             return true;
         }
-        NodeService nodeService;
-        try {
-            nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
-        } catch (UnregisteredServiceException e) {
+        NodeService nodeService = Services.INSTANCE.get(NodeService.class);
+        if (nodeService == null) {
             sender.sendMessage(NODE_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }

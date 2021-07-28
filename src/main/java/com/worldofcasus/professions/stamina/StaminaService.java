@@ -1,14 +1,14 @@
 package com.worldofcasus.professions.stamina;
 
 import com.rpkit.characters.bukkit.character.RPKCharacter;
-import com.rpkit.core.service.ServiceProvider;
+import com.rpkit.core.service.Service;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.database.table.CharacterStaminaTable;
 import org.jooq.DSLContext;
 
 import java.util.concurrent.CompletableFuture;
 
-public final class StaminaService implements ServiceProvider {
+public final class StaminaService implements Service {
 
     public static final int MAX_STAMINA = 100;
 
