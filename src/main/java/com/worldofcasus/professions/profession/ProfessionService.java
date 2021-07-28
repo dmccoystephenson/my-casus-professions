@@ -1,7 +1,7 @@
 package com.worldofcasus.professions.profession;
 
 import com.rpkit.characters.bukkit.character.RPKCharacter;
-import com.rpkit.core.service.ServiceProvider;
+import com.rpkit.core.service.Service;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.database.table.CharacterProfessionTable;
 import com.worldofcasus.professions.database.table.ProfessionTable;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public final class ProfessionService implements ServiceProvider {
+public final class ProfessionService implements Service {
 
     private final CasusProfessions plugin;
 

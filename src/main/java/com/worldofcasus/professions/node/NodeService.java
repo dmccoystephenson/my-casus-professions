@@ -1,6 +1,6 @@
 package com.worldofcasus.professions.node;
 
-import com.rpkit.core.service.ServiceProvider;
+import com.rpkit.core.service.Service;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.database.table.NodeItemTable;
 import com.worldofcasus.professions.database.table.NodeTable;
@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public final class NodeService implements ServiceProvider {
+public final class NodeService implements Service {
 
     private final CasusProfessions plugin;
     private List<Node> nodes = new ArrayList<>();

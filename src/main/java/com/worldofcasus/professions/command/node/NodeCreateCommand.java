@@ -1,11 +1,10 @@
 package com.worldofcasus.professions.command.node;
 
-import com.rpkit.core.exception.UnregisteredServiceException;
-import com.rpkit.players.bukkit.profile.RPKMinecraftProfile;
-import com.rpkit.players.bukkit.profile.RPKMinecraftProfileProvider;
-import com.rpkit.selection.bukkit.selection.RPKSelection;
-import com.rpkit.selection.bukkit.selection.RPKSelectionProvider;
-import com.worldofcasus.professions.CasusProfessions;
+import com.rpkit.core.bukkit.location.LocationsKt;
+import com.rpkit.core.service.Services;
+import com.rpkit.players.bukkit.profile.minecraft.RPKMinecraftProfile;
+import com.rpkit.players.bukkit.profile.minecraft.RPKMinecraftProfileService;
+import com.rpkit.selection.bukkit.selection.RPKSelectionService;
 import com.worldofcasus.professions.node.Node;
 import com.worldofcasus.professions.node.NodeService;
 import com.worldofcasus.professions.profession.Profession;
@@ -35,12 +34,6 @@ public final class NodeCreateCommand implements CommandExecutor {
     private static final String NO_MINECRAFT_PROFILE = RED + "You need a Minecraft profile to be able to use this command.";
     private static final String NO_PERMISSION = RED + "You do not have permission to create nodes.";
 
-    private final CasusProfessions plugin;
-
-    public NodeCreateCommand(CasusProfessions plugin) {
-        this.plugin = plugin;
-    }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("worldofcasus.professions.command.node.create")) {
@@ -52,31 +45,23 @@ public final class NodeCreateCommand implements CommandExecutor {
             return true;
         }
         String name = args[0];
-        NodeService nodeService;
-        try {
-            nodeService = plugin.core.getServiceManager().getServiceProvider(NodeService.class);
-        } catch (UnregisteredServiceException e) {
+        NodeService nodeService = Services.INSTANCE.get(NodeService.class);
+        if (nodeService == null) {
             sender.sendMessage(NODE_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }
-        RPKMinecraftProfileProvider minecraftProfileService;
-        try {
-            minecraftProfileService = plugin.core.getServiceManager().getServiceProvider(RPKMinecraftProfileProvider.class);
-        } catch (UnregisteredServiceException e) {
+        RPKMinecraftProfileService minecraftProfileService = Services.INSTANCE.get(RPKMinecraftProfileService.class);
+        if (minecraftProfileService == null) {
             sender.sendMessage(MINECRAFT_PROFILE_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }
-        RPKSelectionProvider selectionService;
-        try {
-            selectionService = plugin.core.getServiceManager().getServiceProvider(RPKSelectionProvider.class);
-        } catch (UnregisteredServiceException e) {
+        RPKSelectionService selectionService = Services.INSTANCE.get(RPKSelectionService.class);
+        if (selectionService == null) {
             sender.sendMessage(SELECTION_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }
-        ProfessionService professionService;
-        try {
-            professionService = plugin.core.getServiceManager().getServiceProvider(ProfessionService.class);
-        } catch (UnregisteredServiceException e) {
+        ProfessionService professionService = Services.INSTANCE.get(ProfessionService.class);
+        if (professionService == null) {
             sender.sendMessage(PROFESSION_SERVICE_NOT_REGISTERED_ERROR);
             return true;
         }
@@ -92,21 +77,23 @@ public final class NodeCreateCommand implements CommandExecutor {
                 return;
             }
             Player player = (Player) sender;
-            RPKMinecraftProfile minecraftProfile = minecraftProfileService.getMinecraftProfile(player);
+            RPKMinecraftProfile minecraftProfile = minecraftProfileService.getPreloadedMinecraftProfile(player);
             if (minecraftProfile == null) {
                 sender.sendMessage(NO_MINECRAFT_PROFILE);
                 return;
             }
-            RPKSelection selection = selectionService.getSelection(minecraftProfile);
-            Location minLocation = selection.getMinimumPoint().getLocation();
-            Location maxLocation = selection.getMaximumPoint().getLocation();
-            nodeService.addNode(new Node(
-                    name,
-                    minLocation,
-                    maxLocation,
-                    requiredProfession.get(),
-                    new ArrayList<>()
-            )).thenAccept((node) -> sender.sendMessage(nodeCreated(name, minLocation, maxLocation)));
+            selectionService.getSelection(minecraftProfile).thenAccept(selection -> {
+                Location minLocation = LocationsKt.toBukkitBlock(selection.getMinimumPoint()).getLocation();
+                Location maxLocation = LocationsKt.toBukkitBlock(selection.getMaximumPoint()).getLocation();
+                nodeService.addNode(new Node(
+                        name,
+                        minLocation,
+                        maxLocation,
+                        requiredProfession.get(),
+                        new ArrayList<>()
+                )).thenAccept((node) -> sender.sendMessage(nodeCreated(name, minLocation, maxLocation)));
+            });
+
         });
         return true;
     }

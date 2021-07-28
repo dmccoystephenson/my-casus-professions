@@ -1,6 +1,6 @@
 package com.worldofcasus.professions.item;
 
-import com.rpkit.core.service.ServiceProvider;
+import com.rpkit.core.service.Service;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.ability.StrengthRequirement;
 import com.worldofcasus.professions.armorclass.ArmorClassCalculation;
@@ -47,7 +47,7 @@ import static com.worldofcasus.professions.weight.WeightUnit.LB;
 import static com.worldofcasus.professions.weight.WeightUnit.OZ;
 import static org.bukkit.Material.*;
 
-public final class ItemService implements ServiceProvider {
+public final class ItemService implements Service {
 
     private final CasusProfessions plugin;
     private final Map<String, CasusItemType> itemTypes = new HashMap<>();
@@ -55,6 +55,11 @@ public final class ItemService implements ServiceProvider {
     public ItemService(CasusProfessions plugin) {
         this.plugin = plugin;
         loadItemTypes();
+    }
+
+    @Override
+    public CasusProfessions getPlugin() {
+        return plugin;
     }
 
     public CasusItemType getItemType(String name) {

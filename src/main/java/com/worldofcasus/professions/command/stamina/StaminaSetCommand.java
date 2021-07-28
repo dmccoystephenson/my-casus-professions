@@ -1,10 +1,10 @@
 package com.worldofcasus.professions.command.stamina;
 
 import com.rpkit.characters.bukkit.character.RPKCharacter;
-import com.rpkit.characters.bukkit.character.RPKCharacterProvider;
-import com.rpkit.core.exception.UnregisteredServiceException;
-import com.rpkit.players.bukkit.profile.RPKMinecraftProfile;
-import com.rpkit.players.bukkit.profile.RPKMinecraftProfileProvider;
+import com.rpkit.characters.bukkit.character.RPKCharacterService;
+import com.rpkit.core.service.Services;
+import com.rpkit.players.bukkit.profile.minecraft.RPKMinecraftProfile;
+import com.rpkit.players.bukkit.profile.minecraft.RPKMinecraftProfileService;
 import com.worldofcasus.professions.CasusProfessions;
 import com.worldofcasus.professions.stamina.StaminaService;
 import org.bukkit.command.Command;
@@ -39,10 +39,8 @@ public final class StaminaSetCommand implements CommandExecutor {
             sender.sendMessage(NO_PERMISSION);
             return true;
         }
-        StaminaService staminaService;
-        try {
-            staminaService = plugin.core.getServiceManager().getServiceProvider(StaminaService.class);
-        } catch (UnregisteredServiceException exception) {
+        StaminaService staminaService = Services.INSTANCE.get(StaminaService.class);
+        if (staminaService == null) {
             sender.sendMessage(NO_STAMINA_SERVICE);
             return true;
         }
@@ -55,14 +53,12 @@ public final class StaminaSetCommand implements CommandExecutor {
             sender.sendMessage(INVALID_TARGET);
             return true;
         }
-        RPKMinecraftProfileProvider minecraftProfileService;
-        try {
-            minecraftProfileService = plugin.core.getServiceManager().getServiceProvider(RPKMinecraftProfileProvider.class);
-        } catch (UnregisteredServiceException exception) {
+        RPKMinecraftProfileService minecraftProfileService = Services.INSTANCE.get(RPKMinecraftProfileService.class);
+        if (minecraftProfileService == null) {
             sender.sendMessage(NO_MINECRAFT_PROFILE_SERVICE);
             return true;
         }
-        RPKMinecraftProfile minecraftProfile = minecraftProfileService.getMinecraftProfile(player);
+        RPKMinecraftProfile minecraftProfile = minecraftProfileService.getPreloadedMinecraftProfile(player);
         if (minecraftProfile == null) {
             sender.sendMessage(NO_MINECRAFT_PROFILE);
             return true;
@@ -74,14 +70,12 @@ public final class StaminaSetCommand implements CommandExecutor {
             sender.sendMessage(STAMINA_SET_USAGE);
             return true;
         }
-        RPKCharacterProvider characterService;
-        try {
-            characterService = plugin.core.getServiceManager().getServiceProvider(RPKCharacterProvider.class);
-        } catch (UnregisteredServiceException exception) {
+        RPKCharacterService characterService = Services.INSTANCE.get(RPKCharacterService.class);
+        if (characterService == null) {
             sender.sendMessage(NO_CHARACTER_SERVICE);
             return true;
         }
-        RPKCharacter character = characterService.getActiveCharacter(minecraftProfile);
+        RPKCharacter character = characterService.getPreloadedActiveCharacter(minecraftProfile);
         if (character == null) {
             sender.sendMessage(NO_CHARACTER);
             return true;
