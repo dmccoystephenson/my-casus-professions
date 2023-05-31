@@ -90,7 +90,7 @@ public final class CasusProfessions extends RPKBukkitPlugin {
         Services.INSTANCE.set(ProfessionService.class, new ProfessionService(this));
         Services.INSTANCE.set(ItemService.class, new ItemService(this));
 
-        getServer().clearRecipes();
+        // getServer().clearRecipes(); # commented out at the request of TheRanger
 
         new StaminaRestoreRunnable().runTaskTimer(this, 36000L, 72000L);
 
